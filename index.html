@@ -229,7 +229,15 @@
             min-width: 200px !important;
             white-space: normal;
         }
+        
+        .leaflet-tooltip-left:before { border-left-color: var(--surface-solid) !important; }
+        .leaflet-tooltip-right:before { border-right-color: var(--surface-solid) !important; }
+        .leaflet-tooltip-bottom:before { border-bottom-color: var(--surface-solid) !important; }
+        .leaflet-tooltip-top:before { border-top-color: var(--surface-solid) !important; }
 
+        .leaflet-container a.leaflet-popup-close-button { top: 6px; right: 6px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.5); font-size: 16px; }
+        .leaflet-popup-tip { background: var(--surface-solid); }
+        
         .popup-header { 
             padding: 8px; 
             font-weight: 800; text-align: center; border-radius: 14px 14px 0 0; 
@@ -240,8 +248,8 @@
         .popup-label { color: var(--text-sec); font-weight: 500; }
         .popup-val { font-weight: 700; color: var(--text-main); text-align: right; }
         .user-location-marker { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3); }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* WIFI ANIMATION */
         .wifi-icon { width: 20px; height: 20px; color: #00d655; display: block; }
         .wifi-layer { opacity: 0; animation: wifi-appear 1.5s ease-in-out infinite; }
         @keyframes wifi-appear { 0% { opacity: 0; } 15% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
@@ -254,16 +262,11 @@
 
 <body>
 
-    <div class="map-container">
-        <div id="map"></div>
-    </div>
+    <div class="map-container"><div id="map"></div></div>
 
     <div class="top-bar">
         <div class="glass-panel search-container">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-sec)">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-sec)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="search" placeholder="Buscar linha ou prefixo..." autocomplete="off">
             <div class="search-clear" id="btn-search-clear" onclick="limparBuscaInput()">✕</div>
         </div>
@@ -273,24 +276,12 @@
 
     <div class="fab-container">
         <div class="fab-btn glass-panel" id="btn-recenter" onclick="fitBusRoute()">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </div>
-        <div class="fab-btn glass-panel" onclick="toggleSettings()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </div>
-        <div class="fab-btn glass-panel" onclick="toggleSidebar()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path></svg>
-        </div>
-        <div class="fab-btn glass-panel" id="btn-filter" onclick="toggleFiltersPopup()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-        </div>
-        <div class="fab-btn glass-panel" id="btn-location" onclick="toggleLocation()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle></svg>
-        </div>
+        <div class="fab-btn glass-panel" onclick="toggleSettings()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+        <div class="fab-btn glass-panel" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path></svg></div>
+        <div class="fab-btn glass-panel" id="btn-filter" onclick="toggleFiltersPopup()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
+        <div class="fab-btn glass-panel" id="btn-location" onclick="toggleLocation()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle></svg></div>
     </div>
 
     <div id="bottom-sheet" class="bottom-sheet">
@@ -325,39 +316,10 @@
     <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
     <div class="settings-modal" id="settings-modal">
         <h3 style="margin-bottom:20px; text-align:center; font-weight:800;">Configurações</h3>
-        <div class="settings-group">
-            <label class="settings-label">Tema da Aplicação</label>
-            <div class="theme-options">
-                <div class="theme-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div>
-                <div class="theme-btn" onclick="setTheme('light')" id="theme-light">Claro</div>
-                <div class="theme-btn" onclick="setTheme('dark')" id="theme-dark">Escuro</div>
-            </div>
-        </div>
-        <div class="settings-group">
-            <label class="settings-label">Cor de Destaque (App)</label>
-            <div class="color-picker-row">
-                <span style="font-size:13px; font-weight:600;">Personalizada</span>
-                <input type="color" id="custom-color-picker" style="width:30px; height:30px; border:none; background:none; cursor:pointer;" onchange="setCustomColor(this.value)">
-            </div>
-        </div>
-        <div class="settings-group">
-            <label class="settings-label">Estilo dos Marcadores</label>
-            <div class="icon-style-option" onclick="setIconStyle('A')" id="style-a">
-                <div style="background:#fff; border:2px solid var(--primary); color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div>
-                <span style="font-size:13px;">Fundo Branco</span>
-            </div>
-            <div class="icon-style-option" onclick="setIconStyle('B')" id="style-b">
-                <div style="background:var(--primary); border:2px solid #000; color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div>
-                <span style="font-size:13px;">Fundo Colorido</span>
-            </div>
-        </div>
-        <div class="settings-group">
-            <label class="settings-label">Borda do Traçado</label>
-            <div class="theme-options">
-                <div class="theme-btn" onclick="setRouteBorder('white')" id="route-white">Branca</div>
-                <div class="theme-btn" onclick="setRouteBorder('black')" id="route-black">Preta</div>
-            </div>
-        </div>
+        <div class="settings-group"><label class="settings-label">Tema da Aplicação</label><div class="theme-options"><div class="theme-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div><div class="theme-btn" onclick="setTheme('light')" id="theme-light">Claro</div><div class="theme-btn" onclick="setTheme('dark')" id="theme-dark">Escuro</div></div></div>
+        <div class="settings-group"><label class="settings-label">Cor de Destaque (App)</label><div class="color-picker-row"><span>Personalizada</span><input type="color" id="custom-color-picker" onchange="setCustomColor(this.value)"></div></div>
+        <div class="settings-group"><label class="settings-label">Estilo dos Marcadores</label><div class="icon-style-option" onclick="setIconStyle('A')" id="style-a"><div style="background:#fff; border:2px solid var(--primary); color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div><span>Fundo Branco</span></div><div class="icon-style-option" onclick="setIconStyle('B')" id="style-b"><div style="background:var(--primary); border:2px solid #000; color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div><span>Fundo Colorido</span></div></div>
+        <div class="settings-group"><label class="settings-label">Borda do Traçado</label><div class="theme-options"><div class="theme-btn" onclick="setRouteBorder('white')" id="route-white">Branca</div><div class="theme-btn" onclick="setRouteBorder('black')" id="route-black">Preta</div></div></div>
         <button class="btn-close-settings" onclick="toggleSettings()">FECHAR</button>
     </div>
 
@@ -365,11 +327,9 @@
 
     <script>
         // --- CONFIGURAÇÃO ---
+        // NOVA API DFTRANS
         const BASE_API_URL = "https://www.sistemas.dftrans.df.gov.br/service/gps/operacoes";
-        const CORES = {
-            "PIRACICABANA": "#449900", "PIONEIRA": "#ffd500", "URBI": "#0080ff",
-            "MARECHAL": "#ff9100", "BSBUS": "#4dff00", "DESCONHECIDO": "#888888"
-        };
+        const CORES = { "PIRACICABANA": "#449900", "PIONEIRA": "#ffd500", "URBI": "#0080ff", "MARECHAL": "#ff9100", "BSBUS": "#4dff00", "DESCONHECIDO": "#888888" };
 
         let appState = {
             theme: localStorage.getItem('appTheme') || 'auto',
@@ -383,18 +343,7 @@
 
         const busLayer = L.layerGroup().addTo(map);
 
-        let markersRegistry = {};
-        let todosDados = [];
-        let amostragemIds = new Set();
-        let modoAmostragem = true;
-        let termosBusca = [];
-        let dadosTracado = null;
-        let linhasTracado = [];
-        let activeFilter = { type: null, value: null };
-        let itemSelecionado = null;
-        let modoLinhaUnica = false;
-        let userMarker = null;
-        let watchId = null;
+        let markersRegistry = {}, todosDados = [], amostragemIds = new Set(), modoAmostragem = true, termosBusca = [], dadosTracado = null, linhasTracado = [], activeFilter = { type: null, value: null }, itemSelecionado = null, modoLinhaUnica = false, userMarker = null, watchId = null;
 
         function initApp() {
             if (appState.customColor) setCustomColor(appState.customColor);
@@ -403,7 +352,7 @@
             setRouteBorder(appState.routeBorder, false);
             carregarTracado();
             atualizarDados();
-            setInterval(atualizarDados, 10000); // API do DFTrans atualiza em intervalos maiores que 1s
+            setInterval(atualizarDados, 15000); // API DFTrans atualiza mais lentamente (~15s)
             initSwipe();
         }
 
@@ -414,110 +363,92 @@
                 const req = await fetch(BASE_API_URL);
                 const json = await req.json();
                 
-                // --- NOVA LÓGICA: ACHATAR ARRAY DO DFTRANS ---
+                // Mapeamento para manter compatibilidade com seu código original
                 let flattened = [];
                 json.forEach(operadora => {
-                    const nomeEmpresa = getEmpresaPorNome(operadora.operadora.nome);
-                    operadora.veiculos.forEach(v => {
-                        flattened.push({
-                            prefixo: v.numero,
-                            cd_linha: v.linha,
-                            latitude: v.localizacao.latitude,
-                            longitude: v.localizacao.longitude,
-                            velocidade: v.velocidade.valor,
-                            horario: v.horario, // Timestamp em ms
-                            sentido: v.sentido === "IDA" ? "0" : "1",
-                            empresa: nomeEmpresa
+                    if (operadora.veiculos) {
+                        operadora.veiculos.forEach(v => {
+                            if (v.localizacao && v.localizacao.latitude) {
+                                flattened.push({
+                                    properties: {
+                                        prefixo: v.numero,
+                                        cd_linha: v.linha || "",
+                                        latitude: v.localizacao.latitude,
+                                        longitude: v.localizacao.longitude,
+                                        velocidade: v.velocidade?.valor || 0, // Proteção contra null
+                                        datalocal: v.horario, // Agora é um timestamp
+                                        sentido: v.sentido === "IDA" ? "0" : "1"
+                                    }
+                                });
+                            }
                         });
-                    });
+                    }
                 });
 
                 todosDados = flattened;
                 if (amostragemIds.size === 0) gerarAmostragemInicial();
-
                 renderizarMapa(); 
                 atualizarEstatisticas();
                 atualizarInterfaceTempoReal();
-            } catch (e) { console.error("Erro ao buscar dados:", e); }
+            } catch (e) { console.error("Erro na busca:", e); }
         }
 
         function gerarAmostragemInicial() {
             amostragemIds.clear();
             const porEmpresa = {};
-            const candidatos = todosDados.filter(f => f.cd_linha && f.cd_linha.trim() !== "" && f.velocidade > 0);
-            
+            const candidatos = todosDados.filter(f => f.properties.cd_linha && f.properties.cd_linha.trim() !== "" && parseFloat(f.properties.velocidade) > 0);
             candidatos.forEach(f => {
-                if (!porEmpresa[f.empresa]) porEmpresa[f.empresa] = [];
-                porEmpresa[f.empresa].push(f.prefixo);
+                const emp = getEmpresa(f.properties.prefixo);
+                if (!porEmpresa[emp]) porEmpresa[emp] = [];
+                porEmpresa[emp].push(f.properties.prefixo);
             });
             Object.keys(porEmpresa).forEach(emp => {
                 const lista = porEmpresa[emp];
-                const selecionados = lista.sort(() => 0.5 - Math.random()).slice(0, 20);
-                selecionados.forEach(id => amostragemIds.add(String(id)));
+                lista.sort(() => 0.5 - Math.random()).slice(0, 20).forEach(id => amostragemIds.add(String(id)));
             });
         }
 
         function renderizarMapa() {
-            const temBusca = termosBusca.length > 0;
-            const temFiltroMenu = !!activeFilter.type;
-            const temSelecao = !!itemSelecionado;
+            const temBusca = termosBusca.length > 0, temFiltroMenu = !!activeFilter.type, temSelecao = !!itemSelecionado;
             const chkSemLinha = document.getElementById('chk-sem-linha').checked;
             const chkEmpresas = Array.from(document.querySelectorAll('.chk-empresa:checked')).map(cb => cb.value);
-            
-            const isFiltroPopupAtivo = isFiltroPopupCustomizado(); 
-            modoAmostragem = !(temBusca || temFiltroMenu || temSelecao || isFiltroPopupAtivo);
-
+            modoAmostragem = !(temBusca || temFiltroMenu || temSelecao || isFiltroPopupCustomizado());
             const validIds = new Set();
             
-            todosDados.forEach(p => {
-                const lat = p.latitude;
-                const lng = p.longitude;
+            todosDados.forEach(feature => {
+                const p = feature.properties;
+                const lat = parseFloat(p.latitude), lng = parseFloat(p.longitude);
                 if (!lat || lat === 0) return;
-
-                const id = String(p.prefixo);
-                const empresa = p.empresa;
-                const isSemLinha = !p.cd_linha || p.cd_linha.trim() === "";
+                const id = String(p.prefixo), empresa = getEmpresa(p.prefixo), isSemLinha = !p.cd_linha || p.cd_linha.trim() === "";
 
                 let isAlvoEspecifico = false;
-                if (itemSelecionado && String(itemSelecionado.prefixo) === id) {
-                    isAlvoEspecifico = true;
-                } else if (termosBusca.length > 0) {
+                if (itemSelecionado && String(itemSelecionado.prefixo) === id) isAlvoEspecifico = true;
+                else if (termosBusca.length > 0) {
                     const txtBusca = (String(p.cd_linha || "") + " " + String(p.prefixo)).toLowerCase();
-                    if (termosBusca.some(t => txtBusca.includes(t.toLowerCase()))) {
-                        isAlvoEspecifico = true;
-                    }
+                    if (termosBusca.some(t => txtBusca.includes(t.toLowerCase()))) isAlvoEspecifico = true;
                 }
 
                 let visivel = true;
-                if (isAlvoEspecifico) { visivel = true; } 
-                else if (modoLinhaUnica && itemSelecionado) {
-                    if (String(p.cd_linha) !== String(itemSelecionado.cd_linha)) visivel = false;
-                }
-                else if (termosBusca.length > 0) { visivel = false; }
+                if (isAlvoEspecifico) visivel = true;
+                else if (modoLinhaUnica && itemSelecionado) { if (String(p.cd_linha) !== String(itemSelecionado.cd_linha)) visivel = false; }
+                else if (termosBusca.length > 0) visivel = false;
                 else if (temFiltroMenu) {
                     if (activeFilter.type === 'empresa' && empresa !== activeFilter.value) visivel = false;
-                    if (activeFilter.type === 'sem_linha') {
-                        if (activeFilter.value && empresa !== activeFilter.value) visivel = false;
-                        if (!isSemLinha) visivel = false;
-                    }
+                    if (activeFilter.type === 'sem_linha') { if ((activeFilter.value && empresa !== activeFilter.value) || !isSemLinha) visivel = false; }
                 }
                 else if (modoAmostragem) {
-                    const dataObj = parseData(p.horario);
-                    if (!dataObj || (Date.now() - dataObj.getTime()) > 300000) visivel = false; // 5 min para a nova API
-                    if (!amostragemIds.has(id)) visivel = false;
+                    const dataObj = parseData(p.datalocal);
+                    if (!dataObj || (Date.now() - dataObj.getTime()) > 300000 || !amostragemIds.has(id)) visivel = false;
                 }
                 else {
                     if (!chkEmpresas.includes(empresa)) visivel = false;
-                    if (chkSemLinha) { if (!isSemLinha) visivel = false; } 
-                    else { if (isSemLinha) visivel = false; if (p.velocidade === 0) visivel = false; }
+                    if (chkSemLinha) { if (!isSemLinha) visivel = false; }
+                    else { if (isSemLinha || parseFloat(p.velocidade) === 0) visivel = false; }
                 }
 
-                if (!visivel) {
-                    if (markersRegistry[id]) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; }
-                    return; 
-                }
-
+                if (!visivel) { if (markersRegistry[id]) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; } return; }
                 validIds.add(id);
+
                 const txt = isSemLinha ? p.prefixo : p.cd_linha;
                 const isSelected = itemSelecionado && String(itemSelecionado.prefixo) === id;
                 const extraClass = isSelected ? 'selected-mobile' : '';
@@ -535,149 +466,96 @@
                     }
                 } else {
                     const cor = CORES[empresa];
-                    const htmlIcon = appState.iconStyle === 'A'
-                        ? `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>`
-                        : `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
-
-                    const icon = L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] });
-                    const marker = L.marker([lat, lng], { icon: icon });
-
-                    marker.on('click', (e) => {
-                        L.DomEvent.stopPropagation(e);
-                        handleBusClick(p, empresa, marker);
-                    });
-
+                    const htmlIcon = appState.iconStyle === 'A' ? `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>` : `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
+                    const marker = L.marker([lat, lng], { icon: L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] }) });
+                    if (window.innerWidth >= 768 && !isSelected) { bindTooltipMarker(marker, p, empresa); marker.bindPopup(criarConteudoPopup(p, empresa)); }
+                    marker.on('click', (e) => { L.DomEvent.stopPropagation(e); handleBusClick(p, empresa, marker); });
                     busLayer.addLayer(marker);
                     markersRegistry[id] = marker;
                 }
             });
-
-            for (let id in markersRegistry) { if (!validIds.has(id)) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; } }
+            for (let id in markersRegistry) if (!validIds.has(id)) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; }
         }
 
-        function isFiltroPopupCustomizado() {
-            const chkSemLinha = document.getElementById('chk-sem-linha').checked;
-            const checkboxes = document.querySelectorAll('.chk-empresa');
-            const algumaDesmarcada = Array.from(checkboxes).some(c => !c.checked);
-            return chkSemLinha || algumaDesmarcada;
-        }
+        function isFiltroPopupCustomizado() { return document.getElementById('chk-sem-linha').checked || Array.from(document.querySelectorAll('.chk-empresa')).some(c => !c.checked); }
 
         function resetarOutrosModos(origem) {
-            if (origem === 'popup') {
-                activeFilter = { type: null, value: null }; termosBusca = []; 
-                document.getElementById('search-tags').innerHTML = '';
-                limparBuscaInput(true); if(itemSelecionado) resetarSelecao();
-            }
+            if (origem === 'popup') { activeFilter = { type: null, value: null }; termosBusca = []; document.getElementById('search-tags').innerHTML = ''; limparBuscaInput(true); if(itemSelecionado) resetarSelecao(); }
             if (origem === 'sidebar' || origem === 'busca') document.getElementById('chk-sem-linha').checked = false;
-            if (origem === 'sidebar') {
-                termosBusca = []; document.getElementById('search-tags').innerHTML = '';
-                limparBuscaInput(true); if(itemSelecionado) resetarSelecao();
-            }
+            if (origem === 'sidebar') { termosBusca = []; document.getElementById('search-tags').innerHTML = ''; limparBuscaInput(true); if(itemSelecionado) resetarSelecao(); }
             if (origem === 'busca') { activeFilter = { type: null, value: null }; if(itemSelecionado) resetarSelecao(); }
         }
 
-        document.querySelectorAll('.chk-empresa, #chk-sem-linha, #chk-todos').forEach(el => { 
-            el.addEventListener('change', e => { 
-                if (e.target.id === 'chk-todos') document.querySelectorAll('.chk-empresa').forEach(c => c.checked = e.target.checked);
-                resetarOutrosModos('popup'); renderizarMapa(); 
-            }); 
-        });
+        document.querySelectorAll('.chk-empresa, #chk-sem-linha, #chk-todos').forEach(el => { el.addEventListener('change', e => { if (e.target.id === 'chk-todos') document.querySelectorAll('.chk-empresa').forEach(c => c.checked = e.target.checked); resetarOutrosModos('popup'); renderizarMapa(); }); });
+
+        function bindTooltipMarker(marker, p, empresa) { marker.bindTooltip(criarConteudoPopup(p, empresa), { direction: 'auto', className: 'leaflet-tooltip', opacity: 1, permanent: false }); }
 
         function atualizarInterfaceTempoReal() {
             if (!itemSelecionado) return;
-            const dadosNovos = todosDados.find(f => String(f.prefixo) === String(itemSelecionado.prefixo));
+            const dadosNovos = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo));
             if (!dadosNovos) return;
+            const p = dadosNovos.properties;
             if (document.getElementById('bottom-sheet').classList.contains('active')) {
-                const d = parseData(dadosNovos.horario);
-                document.getElementById('sheet-val-vel').innerText = parseInt(dadosNovos.velocidade) + ' km/h';
-                document.getElementById('sheet-val-time').innerText = d ? d.toLocaleTimeString() : '--:--';
-                document.getElementById('sheet-val-status').innerHTML = formatRelativeTimeDetailed(d);
+                const d = parseData(p.datalocal);
+                if (document.getElementById('sheet-val-vel')) document.getElementById('sheet-val-vel').innerText = parseInt(p.velocidade) + ' km/h';
+                if (document.getElementById('sheet-val-time')) document.getElementById('sheet-val-time').innerText = d ? d.toLocaleTimeString() : '--:--';
+                if (document.getElementById('sheet-val-status')) document.getElementById('sheet-val-status').innerHTML = formatRelativeTimeDetailed(d);
             }
         }
 
         function handleBusClick(p, empresa, marker) {
+            const isSameLine = itemSelecionado && p.cd_linha && (itemSelecionado.cd_linha === p.cd_linha);
             itemSelecionado = p;
+            marker.unbindTooltip(); 
             if (!p.cd_linha || p.cd_linha.trim() === "") { modoLinhaUnica = false; limparTracado(); } 
             else { desenharTracado(p.cd_linha, empresa, p.sentido); if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; }
             renderizarMapa();
-            openBottomSheet(p, empresa);
+            if (window.innerWidth < 768) openBottomSheet(p, empresa); else marker.openPopup();
             document.getElementById('btn-recenter').classList.add('show');
-            fitBusRoute();
+            if (!isSameLine) fitBusRoute();
         }
 
         function fitBusRoute() {
             if (!itemSelecionado) return;
-            const marker = markersRegistry[String(itemSelecionado.prefixo)];
-            const group = new L.FeatureGroup();
+            const marker = markersRegistry[String(itemSelecionado.prefixo)], group = new L.FeatureGroup();
             if (marker) group.addLayer(marker);
             if (linhasTracado.length > 0) linhasTracado.forEach(l => group.addLayer(l));
             if (group.getLayers().length > 0) {
-                const bottomPadding = document.body.classList.contains('sheet-open') ? (window.innerHeight * 0.35 + 40) : 50;
-                map.fitBounds(group.getBounds(), { padding: [50, 50], paddingTopLeft: [50, 50], paddingBottomRight: [50, bottomPadding], maxZoom: 15, animate: true });
+                const padding = document.body.classList.contains('sheet-open') ? (window.innerHeight * 0.35 + 40) : 50;
+                map.fitBounds(group.getBounds(), { paddingTopLeft: [50, 50], paddingBottomRight: [50, padding], maxZoom: 15, animate: true });
             }
         }
 
-        function resetarSelecao() {
-            itemSelecionado = null; modoLinhaUnica = false; limparTracado();
-            document.getElementById('btn-recenter').classList.remove('show');
-            closeBottomSheet(); renderizarMapa();
+        function resetarSelecao() { itemSelecionado = null; modoLinhaUnica = false; limparTracado(); document.getElementById('btn-recenter').classList.remove('show'); closeBottomSheet(); renderizarMapa(); }
+
+        function criarConteudoPopup(p, empresa) {
+            const d = parseData(p.datalocal);
+            return `<div class="popup-header" style="border-top: 5px solid ${CORES[empresa]};">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</div><div class="popup-body"><div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div><div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val">${empresa}</span></div><div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${p.sentido == '0' ? 'Ida' : 'Volta'}</span></div><div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div><hr style="margin:5px 0;"><div class="popup-row"><span class="popup-label">Sinal</span><span class="popup-val">${formatRelativeTimeDetailed(d)}</span></div></div>`;
         }
 
         function openBottomSheet(p, empresa) {
-            const d = parseData(p.horario);
-            const cor = CORES[empresa];
-            const html = `
-                <div class="sheet-header-row">
-                    <div class="sheet-title">
-                        <div class="status-dot" style="background:${cor}"></div>
-                        <span style="margin-left:8px;">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span>
-                        <svg class="wifi-icon" viewBox="0 0 24 24"><circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/><path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-                    </div>
-                    <div class="sheet-close" onclick="closeBottomSheet(event)">✕</div>
-                </div>
-                <div class="info-grid">
-                    <div class="info-card"><div class="info-label">Prefixo</div><div class="info-value">${p.prefixo}</div></div>
-                    <div class="info-card"><div class="info-label">Empresa</div><div class="info-value" style="color:${cor}">${empresa}</div></div>
-                    <div class="info-card"><div class="info-label">Sentido</div><div class="info-value">${p.sentido == '0' ? 'Ida' : 'Volta'}</div></div>
-                    <div class="info-card"><div class="info-label">Velocidade</div><div class="info-value" id="sheet-val-vel">${parseInt(p.velocidade)} km/h</div></div>
-                    <div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${d?d.toLocaleTimeString():'--:--'}</div></div>
-                    <div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div>
-                </div>
-            `;
-            document.getElementById('sheet-data').innerHTML = html;
+            const d = parseData(p.datalocal), timeStr = d ? d.toLocaleTimeString() : '--:--', cor = CORES[empresa];
+            document.getElementById('sheet-data').innerHTML = `<div class="sheet-header-row"><div class="sheet-title"><div class="status-dot" style="background:${cor}"></div><span style="margin-left:8px;">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span><svg class="wifi-icon" viewBox="0 0 24 24"><circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/><path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="sheet-close" onclick="closeBottomSheet(event)">✕</div></div><div class="info-grid"><div class="info-card"><div class="info-label">Prefixo</div><div class="info-value">${p.prefixo}</div></div><div class="info-card"><div class="info-label">Empresa</div><div class="info-value" style="color:${cor}">${empresa}</div></div><div class="info-card"><div class="info-label">Sentido</div><div class="info-value">${p.sentido == '0' ? 'Ida' : 'Volta'}</div></div><div class="info-card"><div class="info-label">Velocidade</div><div class="info-value" id="sheet-val-vel">${parseInt(p.velocidade)} km/h</div></div><div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${timeStr}</div></div><div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div></div>`;
             document.getElementById('bottom-sheet').classList.add('active');
             document.body.classList.add('sheet-open');
         }
 
-        function closeBottomSheet(e) { if (e) e.stopPropagation(); document.getElementById('bottom-sheet').classList.remove('active'); document.body.classList.remove('sheet-open'); }
+        function closeBottomSheet(e) { if (e) { e.stopPropagation(); e.preventDefault(); } const sheet = document.getElementById('bottom-sheet'); sheet.style.transform = ''; sheet.classList.remove('active'); document.body.classList.remove('sheet-open'); }
 
         function initSwipe() {
             const sheet = document.getElementById('bottom-sheet');
-            let startY = 0;
+            let startY = 0, currentY = 0;
             sheet.addEventListener('touchstart', (e) => { if (document.querySelector('.sheet-content').scrollTop === 0) startY = e.touches[0].clientY; }, {passive: true});
-            sheet.addEventListener('touchmove', (e) => {
-                if (startY === 0) return;
-                const diff = e.touches[0].clientY - startY;
-                if (diff > 0) sheet.style.transform = `translateY(${diff}px)`;
-            }, {passive: true});
-            sheet.addEventListener('touchend', (e) => {
-                const diff = e.changedTouches[0].clientY - startY;
-                if (diff > 100) closeBottomSheet();
-                else sheet.style.transform = '';
-                startY = 0;
-            });
+            sheet.addEventListener('touchmove', (e) => { if (startY !== 0) { currentY = e.touches[0].clientY; const diff = currentY - startY; if (diff > 0) sheet.style.transform = `translateY(${diff}px)`; } }, {passive: true});
+            sheet.addEventListener('touchend', (e) => { if (startY !== 0) { if (currentY - startY > 100) closeBottomSheet(e); else sheet.style.transform = sheet.classList.contains('active') ? 'translateY(0)' : ''; startY = 0; } });
         }
 
         function desenharTracado(cd, emp, sApi) {
-            limparTracado();
-            if (!dadosTracado || !cd) return;
-            const cands = dadosTracado.filter(x => String(x.cd_linha) === String(cd));
-            if (!cands.length) return;
-            let sNome = (sApi === '0' || sApi === 0) ? 'IDA' : 'VOLTA';
-            let rota = cands.find(c => String(c.sentido_linha).toUpperCase() === sNome) || cands[0];
+            limparTracado(); if (!dadosTracado || !cd) return;
+            const cands = dadosTracado.filter(x => String(x.cd_linha) === String(cd)); if (!cands.length) return;
+            let rota = cands.find(c => String(c.sentido_linha).toUpperCase() === (sApi == '0' ? 'IDA' : 'VOLTA')) || cands[0];
             try {
-                const coords = JSON.parse(rota.tracado_linha);
-                const cor = CORES[emp] || '#000';
+                const coords = JSON.parse(rota.tracado_linha), cor = CORES[emp] || '#000';
                 linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.9 }).addTo(map));
                 linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map));
             } catch (e) {}
@@ -688,15 +566,15 @@
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value;
             document.getElementById('btn-search-clear').classList.toggle('visible', val.length > 0);
-            executarBusca(val);
+            clearTimeout(window.debounceTimer);
+            window.debounceTimer = setTimeout(() => executarBusca(val), 300);
         });
 
         function executarBusca(val) {
-            val = val.toLowerCase();
-            if (!val) { document.getElementById('suggestions').style.display = 'none'; return; }
-            const matches = Array.from(new Set(todosDados.flatMap(f => [f.cd_linha, f.prefixo]))).filter(x => x && x.toLowerCase().includes(val)).slice(0, 10);
-            document.getElementById('suggestions').innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSuggestion('${m}')">${m}</div>`).join('');
-            document.getElementById('suggestions').style.display = 'block';
+            val = val.toLowerCase(); if (!val) { suggestions.style.display = 'none'; return; }
+            const matches = Array.from(new Set(todosDados.flatMap(f => [f.properties.cd_linha, f.properties.prefixo]))).filter(x => x && String(x).toLowerCase().includes(val)).slice(0, 10);
+            suggestions.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSuggestion('${m}')">${m}</div>`).join('');
+            suggestions.style.display = 'block';
         }
 
         function selectSuggestion(val) {
@@ -707,56 +585,42 @@
                 div.onclick = () => { termosBusca = termosBusca.filter(x => x !== val); div.remove(); resetarSelecao(); };
                 document.getElementById('search-tags').appendChild(div);
             }
-            limparBuscaInput(false); renderizarMapa();
+            limparBuscaInput(false); resetarSelecao(); renderizarMapa();
         }
 
-        function limparBuscaInput(blur = true) {
-            searchInput.value = ''; document.getElementById('btn-search-clear').classList.remove('visible');
-            document.getElementById('suggestions').style.display = 'none';
-            if (!blur) searchInput.focus();
-        }
+        function limparBuscaInput(blur = true) { searchInput.value = ''; document.getElementById('btn-search-clear').classList.remove('visible'); suggestions.style.display = 'none'; if (!blur) searchInput.focus(); }
 
         function atualizarEstatisticas() {
             const stats = { total: 0, porEmpresa: {}, semLinha: 0, semLinhaPorEmpresa: {} };
             Object.keys(CORES).forEach(k => { stats.porEmpresa[k] = 0; stats.semLinhaPorEmpresa[k] = 0; });
-            todosDados.forEach(p => {
-                stats.total++;
-                if (stats.porEmpresa[p.empresa] !== undefined) stats.porEmpresa[p.empresa]++;
-                if (!p.cd_linha || p.cd_linha.trim() === "") {
-                    stats.semLinha++;
-                    if (stats.semLinhaPorEmpresa[p.empresa] !== undefined) stats.semLinhaPorEmpresa[p.empresa]++;
-                }
+            todosDados.forEach(f => {
+                const p = f.properties, emp = getEmpresa(p.prefixo);
+                stats.total++; if (stats.porEmpresa[emp] !== undefined) stats.porEmpresa[emp]++;
+                if (!p.cd_linha || p.cd_linha.trim() === "") { stats.semLinha++; if (stats.semLinhaPorEmpresa[emp] !== undefined) stats.semLinhaPorEmpresa[emp]++; }
             });
             let h = `<div class="stat-row" onclick="limparFiltrosStats()" style="background:rgba(128,128,128,0.05); margin-bottom:10px;"><span style="font-weight:700">TOTAL</span><span class="stat-val">${stats.total}</span></div>`;
             for (const [e, v] of Object.entries(stats.porEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h += `<div class="stat-row" onclick="toggleFiltroStats('empresa', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`;
             document.getElementById('stats-content').innerHTML = h;
-            let h2 = '';
-            for (const [e, v] of Object.entries(stats.semLinhaPorEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h2 += `<div class="stat-row" onclick="toggleFiltroStats('sem_linha', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`;
-            document.getElementById('stats-noline').innerHTML = h2;
         }
 
         function toggleFiltroStats(type, val) { resetarOutrosModos('sidebar'); activeFilter = { type, value: val }; renderizarMapa(); toggleSidebar(); }
         function limparFiltrosStats() { activeFilter = { type: null, value: null }; renderizarMapa(); toggleSidebar(); }
 
-        // Identificação por Nome (API DFTrans traz o nome completo)
-        function getEmpresaPorNome(nome) {
-            const n = nome.toUpperCase();
-            if (n.includes("PIRACICABANA")) return 'PIRACICABANA';
-            if (n.includes("PIONEIRA")) return 'PIONEIRA';
-            if (n.includes("URBI")) return 'URBI';
-            if (n.includes("MARECHAL")) return 'MARECHAL';
-            if (n.includes("BSBUS") || n.includes("SAO JOSE")) return 'BSBUS';
-            return 'DESCONHECIDO';
+        function getEmpresa(p) { const s = String(p || ''); if (s.startsWith('1')) return 'PIRACICABANA'; if (s.startsWith('2')) return 'PIONEIRA'; if (s.startsWith('3')) return 'URBI'; if (s.startsWith('4')) return 'MARECHAL'; if (s.startsWith('5') || s.startsWith('7')) return 'BSBUS'; return 'DESCONHECIDO'; }
+        
+        function parseData(s) { 
+            if(!s) return null; 
+            if(typeof s === 'number') return new Date(s); // Suporte ao timestamp da nova API
+            const p = s.split(' '); if(p.length<2) return null;
+            const d=p[0].split('-'), h=p[1].split(':'); 
+            return new Date(d[0], d[1]-1, d[2], h[0], h[1], h[2]); 
         }
-
-        function parseData(horario) { return horario ? new Date(horario) : null; }
 
         function formatRelativeTimeDetailed(d) {
             if (!d) return "Desconhecido";
             const diff = Math.floor((new Date() - d) / 1000);
             if (diff < 60) return `${diff}s atrás`;
-            const m = Math.floor(diff / 60);
-            return `${m}m atrás`;
+            const m = Math.floor(diff / 60); return `${m}m atrás`;
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
@@ -765,12 +629,12 @@
         function setTheme(m, s=true) { document.documentElement.setAttribute('data-theme', m==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m); if(s) localStorage.setItem('appTheme', m); }
         function setIconStyle(st, s=true) { appState.iconStyle = st; if(s){localStorage.setItem('iconStyle', st); renderizarMapa();} }
         function setCustomColor(c) { document.documentElement.style.setProperty('--primary', c); localStorage.setItem('customColor', c); }
-        function setRouteBorder(c, s=true) { appState.routeBorder = c; if(s) localStorage.setItem('routeBorder', c); }
+        function setRouteBorder(c, s=true) { appState.routeBorder = c; if(s) {localStorage.setItem('routeBorder', c); if(itemSelecionado) desenharTracado(itemSelecionado.cd_linha, getEmpresa(itemSelecionado.prefixo), itemSelecionado.sentido);} }
         
         map.on('click', () => { if (itemSelecionado) resetarSelecao(); document.getElementById('filter-popup').classList.remove('show'); closeBottomSheet(); });
         function toggleLocation() {
             if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) map.removeLayer(userMarker); }
-            else { watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); }, null, { enableHighAccuracy: true }); }
+            else { map.locate({ setView: true, maxZoom: 15 }); watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); }, null, { enableHighAccuracy: true }); }
         }
 
         initApp();
