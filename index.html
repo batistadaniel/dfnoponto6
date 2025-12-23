@@ -200,19 +200,12 @@
         .bus-label-style-a { background: #fff; border: 3px solid #000; color: #000; font-weight: 800; font-size: 10px; padding: 1px 4px; border-radius: 6px; white-space: nowrap; }
         .bus-label-style-b { background: #000; border: 2px solid #000; color: #000; font-weight: 800; font-size: 10px; padding: 1px 4px; border-radius: 6px; white-space: nowrap; }
 
-        /* ========================================= */
-        /* === EFEITO ZEBRADO MOBILE (ADICIONADO) === */
-        /* ========================================= */
+        /* EFEITO ZEBRADO MOBILE */
         @media (max-width: 768px) {
-            /* Classe que será injetada via JS no item selecionado */
             .bus-marker-inner.selected-mobile .bus-label-style-a,
             .bus-marker-inner.selected-mobile .bus-label-style-b {
-                /* Borda tracejada preta */
                 border: 2px dashed #000 !important;
-                /* Sombra branca dura para criar o efeito zebrado (Preto do dash / Branco da sombra no gap) */
                 box-shadow: 0 0 0 2px #fff, 0 4px 10px rgba(0,0,0,0.3) !important;
-                
-                /* Leve aumento para destaque */
                 transform: scale(1.15); 
                 z-index: 1000;
             }
@@ -236,15 +229,7 @@
             min-width: 200px !important;
             white-space: normal;
         }
-        
-        .leaflet-tooltip-left:before { border-left-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-right:before { border-right-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-bottom:before { border-bottom-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-top:before { border-top-color: var(--surface-solid) !important; }
 
-        .leaflet-container a.leaflet-popup-close-button { top: 6px; right: 6px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.5); font-size: 16px; }
-        .leaflet-popup-tip { background: var(--surface-solid); }
-        
         .popup-header { 
             padding: 8px; 
             font-weight: 800; text-align: center; border-radius: 14px 14px 0 0; 
@@ -255,36 +240,15 @@
         .popup-label { color: var(--text-sec); font-weight: 500; }
         .popup-val { font-weight: 700; color: var(--text-main); text-align: right; }
         .user-location-marker { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3); }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        .wifi-icon {
-            width: 20px;
-            height: 20px;
-            color: #00d655;
-            display: block;
-        }
-        .wifi-layer {
-            opacity: 0; 
-            animation: wifi-appear 1.5s ease-in-out infinite;
-        }
-        @keyframes wifi-appear {
-            0% { opacity: 0; } /* Início do ciclo: invisível */
-            15% { opacity: 1; } /* Aparece rapidamente */
-            65% { opacity: 1; } /* Permanece visível por um tempo */
-            100% { opacity: 0; } /* Desaparece suavemente para reiniciar o loop */
-        }
-        .layer-1-dot {
-            animation-delay: 0.0s; /* O ponto aparece imediatamente */
-        }
-        .layer-2-arc {
-            animation-delay: 0.15s; /* Primeiro arco */
-        }
-        .layer-3-arc {
-            animation-delay: 0.3s; /* Segundo arco */
-        }
-        .layer-4-arc {
-            animation-delay: 0.45s; /* Arco superior */
-        }
+        /* WIFI ANIMATION */
+        .wifi-icon { width: 20px; height: 20px; color: #00d655; display: block; }
+        .wifi-layer { opacity: 0; animation: wifi-appear 1.5s ease-in-out infinite; }
+        @keyframes wifi-appear { 0% { opacity: 0; } 15% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
+        .layer-1-dot { animation-delay: 0.0s; }
+        .layer-2-arc { animation-delay: 0.15s; }
+        .layer-3-arc { animation-delay: 0.3s; }
+        .layer-4-arc { animation-delay: 0.45s; }
     </style>
 </head>
 
@@ -315,41 +279,23 @@
                 <line x1="8" y1="12" x2="16" y2="12"></line>
             </svg>
         </div>
-
         <div class="fab-btn glass-panel" onclick="toggleSettings()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </div>
         <div class="fab-btn glass-panel" onclick="toggleSidebar()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                <path d="M9 14h6"></path>
-                <path d="M9 10h6"></path>
-                <path d="M9 18h6"></path>
-            </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path></svg>
         </div>
         <div class="fab-btn glass-panel" id="btn-filter" onclick="toggleFiltersPopup()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         </div>
         <div class="fab-btn glass-panel" id="btn-location" onclick="toggleLocation()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle>
-            </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle></svg>
         </div>
     </div>
 
     <div id="bottom-sheet" class="bottom-sheet">
-        <div class="sheet-handle-bar">
-            <div class="sheet-handle"></div>
-        </div>
-        <div class="sheet-content" id="sheet-data">
-            </div>
+        <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
+        <div class="sheet-content" id="sheet-data"></div>
     </div>
 
     <div class="glass-panel filter-popup" id="filter-popup">
@@ -367,10 +313,7 @@
 
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar-panel" id="sidebar">
-        <div class="sidebar-header">
-            <span>Resumo Operacional</span>
-            <span onclick="toggleSidebar()" style="cursor:pointer">✕</span>
-        </div>
+        <div class="sidebar-header"><span>Resumo Operacional</span><span onclick="toggleSidebar()" style="cursor:pointer">✕</span></div>
         <div class="sidebar-content">
             <h4 style="margin: 10px 0; font-size:12px; text-transform:uppercase; color:var(--text-sec);">Resumo da Frota</h4>
             <div id="stats-content">Carregando...</div>
@@ -415,18 +358,14 @@
                 <div class="theme-btn" onclick="setRouteBorder('black')" id="route-black">Preta</div>
             </div>
         </div>
-        <button id="btn-close-settings" class="btn-close-settings" onclick="toggleSettings()">FECHAR</button>
+        <button class="btn-close-settings" onclick="toggleSettings()">FECHAR</button>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
         // --- CONFIGURAÇÃO ---
-        // http://localhost:3000/api/geojson https://corsproxy.io/?https%3A%2F%2Fgeoserver.semob.df.gov.br%2Fgeoserver%2Fsemob%2Fows%3Fservice%3DWFS%26version%3D1.0.0%26request%3DGetFeature%26typeName%3Dsemob%253A%25C3%259Altima%2520posi%25C3%25A7%25C3%25A3o%2520da%2520frota%26outputFormat%3Dapplication%252Fjson
-        // Use rota relativa para funcionar localmente (quando rodar node api/index.js)
-        // e também no deploy (Vercel expõe endpoints em /api/<nome>)
-        const BASE_API_URL = "/api/geojson";
-        // Se quiser forçar bypass de cache, use: `${BASE_API_URL}?_t=${Date.now()}`
+        const BASE_API_URL = "https://www.sistemas.dftrans.df.gov.br/service/gps/operacoes";
         const CORES = {
             "PIRACICABANA": "#449900", "PIONEIRA": "#ffd500", "URBI": "#0080ff",
             "MARECHAL": "#ff9100", "BSBUS": "#4dff00", "DESCONHECIDO": "#888888"
@@ -444,7 +383,6 @@
 
         const busLayer = L.layerGroup().addTo(map);
 
-        // VARIÁVEIS DE ESTADO
         let markersRegistry = {};
         let todosDados = [];
         let amostragemIds = new Set();
@@ -458,7 +396,6 @@
         let userMarker = null;
         let watchId = null;
 
-        // --- INIT ---
         function initApp() {
             if (appState.customColor) setCustomColor(appState.customColor);
             setTheme(appState.theme, false);
@@ -466,43 +403,53 @@
             setRouteBorder(appState.routeBorder, false);
             carregarTracado();
             atualizarDados();
-            setInterval(atualizarDados, 1000);
+            setInterval(atualizarDados, 10000); // API do DFTrans atualiza em intervalos maiores que 1s
             initSwipe();
         }
 
-        // --- DADOS ---
         async function carregarTracado() { try { const res = await fetch('json/tracado_linha.json'); if (res.ok) dadosTracado = await res.json(); } catch (err) {} }
 
         async function atualizarDados() {
             try {
-                // const req = await fetch(`${BASE_API_URL}&_t=${Date.now()}`);
-                const req = await fetch(`${BASE_API_URL}`);
+                const req = await fetch(BASE_API_URL);
                 const json = await req.json();
-                if (json.features) { 
-                    todosDados = json.features; 
-                    if (amostragemIds.size === 0) gerarAmostragemInicial();
+                
+                // --- NOVA LÓGICA: ACHATAR ARRAY DO DFTRANS ---
+                let flattened = [];
+                json.forEach(operadora => {
+                    const nomeEmpresa = getEmpresaPorNome(operadora.operadora.nome);
+                    operadora.veiculos.forEach(v => {
+                        flattened.push({
+                            prefixo: v.numero,
+                            cd_linha: v.linha,
+                            latitude: v.localizacao.latitude,
+                            longitude: v.localizacao.longitude,
+                            velocidade: v.velocidade.valor,
+                            horario: v.horario, // Timestamp em ms
+                            sentido: v.sentido === "IDA" ? "0" : "1",
+                            empresa: nomeEmpresa
+                        });
+                    });
+                });
 
-                    renderizarMapa(); 
-                    atualizarEstatisticas();
-                    atualizarInterfaceTempoReal();
-                }
-            } catch (e) {}
+                todosDados = flattened;
+                if (amostragemIds.size === 0) gerarAmostragemInicial();
+
+                renderizarMapa(); 
+                atualizarEstatisticas();
+                atualizarInterfaceTempoReal();
+            } catch (e) { console.error("Erro ao buscar dados:", e); }
         }
 
         function gerarAmostragemInicial() {
             amostragemIds.clear();
             const porEmpresa = {};
-            const candidatos = todosDados.filter(f => {
-                const p = f.properties;
-                // Critério Amostragem: Tem linha E Velocidade > 0
-                return p.cd_linha && p.cd_linha.trim() !== "" && parseFloat(p.velocidade) > 0;
-            });
+            const candidatos = todosDados.filter(f => f.cd_linha && f.cd_linha.trim() !== "" && f.velocidade > 0);
+            
             candidatos.forEach(f => {
-                const emp = getEmpresa(f.properties.prefixo);
-                if (!porEmpresa[emp]) porEmpresa[emp] = [];
-                porEmpresa[emp].push(f.properties.prefixo);
+                if (!porEmpresa[f.empresa]) porEmpresa[f.empresa] = [];
+                porEmpresa[f.empresa].push(f.prefixo);
             });
-            // Pega 20 aleatórios de cada empresa (total ~100)
             Object.keys(porEmpresa).forEach(emp => {
                 const lista = porEmpresa[emp];
                 const selecionados = lista.sort(() => 0.5 - Math.random()).slice(0, 20);
@@ -510,31 +457,27 @@
             });
         }
 
-        // --- RENDERIZAÇÃO E FILTRAGEM ---
         function renderizarMapa() {
             const temBusca = termosBusca.length > 0;
-            const temFiltroMenu = !!activeFilter.type; // Resumo Operacional
+            const temFiltroMenu = !!activeFilter.type;
             const temSelecao = !!itemSelecionado;
             const chkSemLinha = document.getElementById('chk-sem-linha').checked;
             const chkEmpresas = Array.from(document.querySelectorAll('.chk-empresa:checked')).map(cb => cb.value);
             
-            // O modo de amostragem só é ativo se NÃO houver nenhum filtro específico
             const isFiltroPopupAtivo = isFiltroPopupCustomizado(); 
             modoAmostragem = !(temBusca || temFiltroMenu || temSelecao || isFiltroPopupAtivo);
 
             const validIds = new Set();
             
-            todosDados.forEach(feature => {
-                const p = feature.properties;
-                const lat = parseFloat(p.latitude);
-                const lng = parseFloat(p.longitude);
+            todosDados.forEach(p => {
+                const lat = p.latitude;
+                const lng = p.longitude;
                 if (!lat || lat === 0) return;
 
                 const id = String(p.prefixo);
-                const empresa = getEmpresa(p.prefixo);
+                const empresa = p.empresa;
                 const isSemLinha = !p.cd_linha || p.cd_linha.trim() === "";
 
-                // --- 1. VERIFICAÇÃO DE ALVO (Busca ou Clique) ---
                 let isAlvoEspecifico = false;
                 if (itemSelecionado && String(itemSelecionado.prefixo) === id) {
                     isAlvoEspecifico = true;
@@ -545,20 +488,13 @@
                     }
                 }
 
-                // --- 2. LÓGICA DE VISIBILIDADE ---
                 let visivel = true;
-
-                if (isAlvoEspecifico) {
-                    visivel = true; // Sempre mostra alvos da busca/clique
-                } 
+                if (isAlvoEspecifico) { visivel = true; } 
                 else if (modoLinhaUnica && itemSelecionado) {
                     if (String(p.cd_linha) !== String(itemSelecionado.cd_linha)) visivel = false;
                 }
-                else if (termosBusca.length > 0) {
-                    visivel = false;
-                }
+                else if (termosBusca.length > 0) { visivel = false; }
                 else if (temFiltroMenu) {
-                    // Menu Lateral
                     if (activeFilter.type === 'empresa' && empresa !== activeFilter.value) visivel = false;
                     if (activeFilter.type === 'sem_linha') {
                         if (activeFilter.value && empresa !== activeFilter.value) visivel = false;
@@ -566,27 +502,14 @@
                     }
                 }
                 else if (modoAmostragem) {
-                    // MODO AMOSTRAGEM INICIAL (100 ÔNIBUS)
-                    
-                    // A. Filtro de SINAL ANTIGO (Só vale aqui)
-                    const dataObj = parseData(p.datalocal);
-                    // Se não tiver data ou for mais velho que 3min (180s) -> Oculta
-                    if (!dataObj || (Date.now() - dataObj.getTime()) > 180000) visivel = false;
-
-                    // B. Só mostra se estiver na lista gerada aleatoriamente
+                    const dataObj = parseData(p.horario);
+                    if (!dataObj || (Date.now() - dataObj.getTime()) > 300000) visivel = false; // 5 min para a nova API
                     if (!amostragemIds.has(id)) visivel = false;
                 }
                 else {
-                    // FILTROS POPUP (Checkboxes)
                     if (!chkEmpresas.includes(empresa)) visivel = false;
-
-                    if (chkSemLinha) {
-                        if (!isSemLinha) visivel = false; // Só mostra sem linha
-                    } else {
-                        if (isSemLinha) visivel = false; // Só mostra com linha
-                        // Filtro de velocidade APENAS se não houver outros filtros ativos no popup
-                         if (parseFloat(p.velocidade) === 0) visivel = false;
-                    }
+                    if (chkSemLinha) { if (!isSemLinha) visivel = false; } 
+                    else { if (isSemLinha) visivel = false; if (p.velocidade === 0) visivel = false; }
                 }
 
                 if (!visivel) {
@@ -595,21 +518,13 @@
                 }
 
                 validIds.add(id);
-
-                // --- 3. RENDERIZAÇÃO DO MARCADOR ---
                 const txt = isSemLinha ? p.prefixo : p.cd_linha;
-
-                // CORREÇÃO: Verifica se é o item selecionado para não exibir tooltip
                 const isSelected = itemSelecionado && String(itemSelecionado.prefixo) === id;
-
-                // Define a classe extra para efeito zebrado se estiver selecionado
                 const extraClass = isSelected ? 'selected-mobile' : '';
 
                 if (markersRegistry[id]) {
                     const mk = markersRegistry[id];
                     mk.setLatLng([lat, lng]);
-                    
-                    // Atualiza a classe CSS do elemento existente para zebrado
                     const el = mk.getElement();
                     if (el) {
                         const inner = el.querySelector('.bus-marker-inner');
@@ -618,30 +533,14 @@
                             else inner.classList.remove('selected-mobile');
                         }
                     }
-
-                    if (isSelected) {
-                        mk.unbindTooltip(); 
-                    } else {
-                        if (window.innerWidth >= 768 && !mk.getTooltip()) {
-                            bindTooltipMarker(mk, p, empresa);
-                        }
-                    }
                 } else {
                     const cor = CORES[empresa];
-                    
                     const htmlIcon = appState.iconStyle === 'A'
                         ? `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>`
                         : `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
 
                     const icon = L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] });
                     const marker = L.marker([lat, lng], { icon: icon });
-
-                    const htmlContent = criarConteudoPopup(p, empresa);
-                    
-                    if (window.innerWidth >= 768 && !isSelected) {
-                        bindTooltipMarker(marker, p, empresa);
-                        marker.bindPopup(htmlContent);
-                    }
 
                     marker.on('click', (e) => {
                         L.DomEvent.stopPropagation(e);
@@ -656,7 +555,6 @@
             for (let id in markersRegistry) { if (!validIds.has(id)) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; } }
         }
 
-        // --- CONTROLE DE INTERCALAÇÃO DE FILTROS ---
         function isFiltroPopupCustomizado() {
             const chkSemLinha = document.getElementById('chk-sem-linha').checked;
             const checkboxes = document.querySelectorAll('.chk-empresa');
@@ -666,108 +564,56 @@
 
         function resetarOutrosModos(origem) {
             if (origem === 'popup') {
-                activeFilter = { type: null, value: null }; 
-                termosBusca = []; 
+                activeFilter = { type: null, value: null }; termosBusca = []; 
                 document.getElementById('search-tags').innerHTML = '';
-                limparBuscaInput(true);
-                if(itemSelecionado) resetarSelecao();
+                limparBuscaInput(true); if(itemSelecionado) resetarSelecao();
             }
-            if (origem === 'sidebar' || origem === 'busca') {
-                document.getElementById('chk-sem-linha').checked = false;
-            }
+            if (origem === 'sidebar' || origem === 'busca') document.getElementById('chk-sem-linha').checked = false;
             if (origem === 'sidebar') {
-                termosBusca = []; 
-                document.getElementById('search-tags').innerHTML = '';
-                limparBuscaInput(true);
-                if(itemSelecionado) resetarSelecao();
+                termosBusca = []; document.getElementById('search-tags').innerHTML = '';
+                limparBuscaInput(true); if(itemSelecionado) resetarSelecao();
             }
-            if (origem === 'busca') {
-                activeFilter = { type: null, value: null }; 
-                if(itemSelecionado) resetarSelecao();
-            }
+            if (origem === 'busca') { activeFilter = { type: null, value: null }; if(itemSelecionado) resetarSelecao(); }
         }
 
-        // Event Listeners
         document.querySelectorAll('.chk-empresa, #chk-sem-linha, #chk-todos').forEach(el => { 
             el.addEventListener('change', e => { 
-                if (e.target.id === 'chk-todos') {
-                    document.querySelectorAll('.chk-empresa').forEach(c => c.checked = e.target.checked);
-                }
-                resetarOutrosModos('popup');
-                renderizarMapa(); 
+                if (e.target.id === 'chk-todos') document.querySelectorAll('.chk-empresa').forEach(c => c.checked = e.target.checked);
+                resetarOutrosModos('popup'); renderizarMapa(); 
             }); 
         });
 
-        // --- FUNÇÕES AUXILIARES ---
-        function bindTooltipMarker(marker, p, empresa) {
-            const htmlContent = criarConteudoPopup(p, empresa);
-            marker.bindTooltip(htmlContent, { direction: 'auto', className: 'leaflet-tooltip', opacity: 1, permanent: false });
-        }
-
         function atualizarInterfaceTempoReal() {
-            Object.keys(markersRegistry).forEach(id => {
-                const m = markersRegistry[id];
-                if (m.getTooltip() && m.isTooltipOpen()) {
-                    const f = todosDados.find(x => String(x.properties.prefixo) === id);
-                    if (f) m.setTooltipContent(criarConteudoPopup(f.properties, getEmpresa(id)));
-                }
-            });
             if (!itemSelecionado) return;
-            const dadosNovos = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo));
+            const dadosNovos = todosDados.find(f => String(f.prefixo) === String(itemSelecionado.prefixo));
             if (!dadosNovos) return;
-            const p = dadosNovos.properties;
-            const marker = markersRegistry[String(p.prefixo)];
-            if (marker && marker.getPopup() && marker.getPopup().isOpen()) marker.getPopup().setContent(criarConteudoPopup(p, getEmpresa(p.prefixo)));
             if (document.getElementById('bottom-sheet').classList.contains('active')) {
-                const d = parseData(p.datalocal);
-                const elVel = document.getElementById('sheet-val-vel');
-                const elTime = document.getElementById('sheet-val-time');
-                const elStatus = document.getElementById('sheet-val-status');
-                if (elVel) elVel.innerText = parseInt(p.velocidade) + ' km/h';
-                if (elTime) elTime.innerText = d ? d.toLocaleTimeString() : '--:--';
-                if (elStatus) elStatus.innerHTML = formatRelativeTimeDetailed(d);
+                const d = parseData(dadosNovos.horario);
+                document.getElementById('sheet-val-vel').innerText = parseInt(dadosNovos.velocidade) + ' km/h';
+                document.getElementById('sheet-val-time').innerText = d ? d.toLocaleTimeString() : '--:--';
+                document.getElementById('sheet-val-status').innerHTML = formatRelativeTimeDetailed(d);
             }
         }
 
         function handleBusClick(p, empresa, marker) {
-            const isSameLine = itemSelecionado && p.cd_linha && (itemSelecionado.cd_linha === p.cd_linha);
-
             itemSelecionado = p;
-            marker.unbindTooltip(); 
             if (!p.cd_linha || p.cd_linha.trim() === "") { modoLinhaUnica = false; limparTracado(); } 
             else { desenharTracado(p.cd_linha, empresa, p.sentido); if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; }
             renderizarMapa();
-            
-            if (window.innerWidth < 768) { 
-                openBottomSheet(p, empresa); 
-            } else { 
-                marker.openPopup(); 
-            }
+            openBottomSheet(p, empresa);
             document.getElementById('btn-recenter').classList.add('show');
-            
-            if (!isSameLine) {
-                fitBusRoute();
-            }
+            fitBusRoute();
         }
 
         function fitBusRoute() {
             if (!itemSelecionado) return;
             const marker = markersRegistry[String(itemSelecionado.prefixo)];
             const group = new L.FeatureGroup();
-            
             if (marker) group.addLayer(marker);
             if (linhasTracado.length > 0) linhasTracado.forEach(l => group.addLayer(l));
-            
             if (group.getLayers().length > 0) {
-                const isSheetOpen = document.body.classList.contains('sheet-open');
-                const bottomPadding = isSheetOpen ? (window.innerHeight * 0.35 + 40) : 50;
-                
-                map.fitBounds(group.getBounds(), { 
-                    paddingTopLeft: [50, 50], 
-                    paddingBottomRight: [50, bottomPadding],
-                    maxZoom: 15,
-                    animate: true 
-                });
+                const bottomPadding = document.body.classList.contains('sheet-open') ? (window.innerHeight * 0.35 + 40) : 50;
+                map.fitBounds(group.getBounds(), { padding: [50, 50], paddingTopLeft: [50, 50], paddingBottomRight: [50, bottomPadding], maxZoom: 15, animate: true });
             }
         }
 
@@ -777,57 +623,15 @@
             closeBottomSheet(); renderizarMapa();
         }
 
-        function criarConteudoPopup(p, empresa) {
-            const d = parseData(p.datalocal);
-            const timeStr = d ? d.toLocaleTimeString() : '--:--';
-            const dateStr = d ? d.toLocaleDateString() : '--/--';
-            const relative = formatRelativeTimeDetailed(d);
-            return `
-                <div class="popup-header" style="border-top: 5px solid ${CORES[empresa]};">
-                    ${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}
-                </div>
-                <div class="popup-body">
-                    <div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div>
-                    <div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val">${empresa}</span></div>
-                    <div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${p.sentido == '0' ? 'Ida' : 'Volta'}</span></div>
-                    <div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div>
-                    <hr style="border:0; border-top:1px solid var(--border); margin:5px 0;">
-                    <div class="popup-row"><span class="popup-label">Data</span><span class="popup-val">${dateStr}</span></div>
-                    <div class="popup-row"><span class="popup-label">Hora</span><span class="popup-val">${timeStr}</span></div>
-                    <div class="popup-row"><span class="popup-label">Sinal</span><span class="popup-val">${relative}</span></div>
-                </div>
-            `;
-        }
-
         function openBottomSheet(p, empresa) {
-            const d = parseData(p.datalocal);
-            const timeStr = d ? d.toLocaleTimeString() : '--:--';
-            const relative = formatRelativeTimeDetailed(d);
+            const d = parseData(p.horario);
             const cor = CORES[empresa];
             const html = `
                 <div class="sheet-header-row">
                     <div class="sheet-title">
                         <div class="status-dot" style="background:${cor}"></div>
                         <span style="margin-left:8px;">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span>
-                        <svg class="wifi-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-
-                        <circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/>
-
-                        
-
-                        <path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-
-                        
-
-                        <path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-
-                        
-
-                        <path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-
-                    </svg>
-
-
+                        <svg class="wifi-icon" viewBox="0 0 24 24"><circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/><path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
                     </div>
                     <div class="sheet-close" onclick="closeBottomSheet(event)">✕</div>
                 </div>
@@ -836,8 +640,8 @@
                     <div class="info-card"><div class="info-label">Empresa</div><div class="info-value" style="color:${cor}">${empresa}</div></div>
                     <div class="info-card"><div class="info-label">Sentido</div><div class="info-value">${p.sentido == '0' ? 'Ida' : 'Volta'}</div></div>
                     <div class="info-card"><div class="info-label">Velocidade</div><div class="info-value" id="sheet-val-vel">${parseInt(p.velocidade)} km/h</div></div>
-                    <div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${timeStr}</div></div>
-                    <div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${relative}</div></div>
+                    <div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${d?d.toLocaleTimeString():'--:--'}</div></div>
+                    <div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div>
                 </div>
             `;
             document.getElementById('sheet-data').innerHTML = html;
@@ -845,34 +649,22 @@
             document.body.classList.add('sheet-open');
         }
 
-        function closeBottomSheet(e) {
-            if (e) { e.stopPropagation(); e.preventDefault(); }
-            const sheet = document.getElementById('bottom-sheet');
-            sheet.style.transform = '';
-            sheet.classList.remove('active');
-            document.body.classList.remove('sheet-open');
-        }
+        function closeBottomSheet(e) { if (e) e.stopPropagation(); document.getElementById('bottom-sheet').classList.remove('active'); document.body.classList.remove('sheet-open'); }
 
         function initSwipe() {
             const sheet = document.getElementById('bottom-sheet');
-            let startY = 0, currentY = 0;
-            sheet.addEventListener('touchstart', (e) => {
-                const content = document.querySelector('.sheet-content');
-                if (content && content.scrollTop === 0) startY = e.touches[0].clientY;
-            }, {passive: true});
+            let startY = 0;
+            sheet.addEventListener('touchstart', (e) => { if (document.querySelector('.sheet-content').scrollTop === 0) startY = e.touches[0].clientY; }, {passive: true});
             sheet.addEventListener('touchmove', (e) => {
                 if (startY === 0) return;
-                currentY = e.touches[0].clientY;
-                const diff = currentY - startY;
+                const diff = e.touches[0].clientY - startY;
                 if (diff > 0) sheet.style.transform = `translateY(${diff}px)`;
             }, {passive: true});
             sheet.addEventListener('touchend', (e) => {
-                if (startY === 0) return;
-                const diff = currentY - startY;
-                if (diff > 100) closeBottomSheet(e);
-                else if(sheet.classList.contains('active')) sheet.style.transform = 'translateY(0)';
+                const diff = e.changedTouches[0].clientY - startY;
+                if (diff > 100) closeBottomSheet();
                 else sheet.style.transform = '';
-                startY = 0; currentY = 0;
+                startY = 0;
             });
         }
 
@@ -886,59 +678,25 @@
             try {
                 const coords = JSON.parse(rota.tracado_linha);
                 const cor = CORES[emp] || '#000';
-                const bc = appState.routeBorder;
-                const borda = L.polyline(coords, { color: bc, weight: 6, opacity: 0.9 }).addTo(map);
-                const miolo = L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map);
-                linhasTracado.push(borda, miolo);
+                linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.9 }).addTo(map));
+                linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map));
             } catch (e) {}
         }
         function limparTracado() { linhasTracado.forEach(l => map.removeLayer(l)); linhasTracado = []; }
 
         const searchInput = document.getElementById('search');
-        const searchClear = document.getElementById('btn-search-clear');
-        const suggestions = document.getElementById('suggestions');
-        let currentFocus = -1, debounceTimer;
-
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value;
-            searchClear.classList.toggle('visible', val.length > 0);
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => executarBusca(val), 300);
+            document.getElementById('btn-search-clear').classList.toggle('visible', val.length > 0);
+            executarBusca(val);
         });
-
-        searchInput.addEventListener('keydown', function (e) {
-            let items = suggestions.getElementsByClassName('suggestion-item');
-            if (e.key === 'ArrowDown') { currentFocus++; addActive(items); }
-            else if (e.key === 'ArrowUp') { currentFocus--; addActive(items); }
-            else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click();
-                else if (items.length > 0) items[0].click();
-            }
-        });
-
-        function addActive(x) {
-            if (!x) return false;
-            for (let i = 0; i < x.length; i++) x[i].classList.remove("selected");
-            if (currentFocus >= x.length) currentFocus = 0;
-            if (currentFocus < 0) currentFocus = (x.length - 1);
-            x[currentFocus].classList.add("selected");
-            x[currentFocus].scrollIntoView({ block: 'nearest' });
-        }
 
         function executarBusca(val) {
             val = val.toLowerCase();
-            currentFocus = -1;
-            if (!val) { suggestions.style.display = 'none'; return; }
-            const set = new Set();
-            todosDados.forEach(f => {
-                if(f.properties.cd_linha) set.add(f.properties.cd_linha);
-                if(f.properties.prefixo) set.add(String(f.properties.prefixo));
-            });
-            const matches = Array.from(set).filter(x => x.toLowerCase().includes(val));
-            if (matches.length === 0) { suggestions.style.display = 'none'; return; }
-            suggestions.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSuggestion('${m}')">${m}</div>`).join('');
-            suggestions.style.display = 'block';
+            if (!val) { document.getElementById('suggestions').style.display = 'none'; return; }
+            const matches = Array.from(new Set(todosDados.flatMap(f => [f.cd_linha, f.prefixo]))).filter(x => x && x.toLowerCase().includes(val)).slice(0, 10);
+            document.getElementById('suggestions').innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSuggestion('${m}')">${m}</div>`).join('');
+            document.getElementById('suggestions').style.display = 'block';
         }
 
         function selectSuggestion(val) {
@@ -949,97 +707,70 @@
                 div.onclick = () => { termosBusca = termosBusca.filter(x => x !== val); div.remove(); resetarSelecao(); };
                 document.getElementById('search-tags').appendChild(div);
             }
-            limparBuscaInput(false);
-            resetarSelecao();
-            
-            const found = todosDados.find(f => (f.properties.cd_linha === val || String(f.properties.prefixo) === val));
-            if(found) {
-                itemSelecionado = found.properties;
-                desenharTracado(found.properties.cd_linha, getEmpresa(found.properties.prefixo), found.properties.sentido);
-                
-                itemSelecionado = null; 
-                modoLinhaUnica = true; 
-                renderizarMapa();
-
-                itemSelecionado = found.properties; 
-                fitBusRoute();
-            }
+            limparBuscaInput(false); renderizarMapa();
         }
 
         function limparBuscaInput(blur = true) {
-            searchInput.value = '';
-            searchClear.classList.remove('visible');
-            suggestions.style.display = 'none';
+            searchInput.value = ''; document.getElementById('btn-search-clear').classList.remove('visible');
+            document.getElementById('suggestions').style.display = 'none';
             if (!blur) searchInput.focus();
         }
 
         function atualizarEstatisticas() {
             const stats = { total: 0, porEmpresa: {}, semLinha: 0, semLinhaPorEmpresa: {} };
             Object.keys(CORES).forEach(k => { stats.porEmpresa[k] = 0; stats.semLinhaPorEmpresa[k] = 0; });
-            todosDados.forEach(f => {
-                const p = f.properties;
-                const emp = getEmpresa(p.prefixo);
+            todosDados.forEach(p => {
                 stats.total++;
-                if (stats.porEmpresa[emp] !== undefined) stats.porEmpresa[emp]++;
+                if (stats.porEmpresa[p.empresa] !== undefined) stats.porEmpresa[p.empresa]++;
                 if (!p.cd_linha || p.cd_linha.trim() === "") {
                     stats.semLinha++;
-                    if (stats.semLinhaPorEmpresa[emp] !== undefined) stats.semLinhaPorEmpresa[emp]++;
+                    if (stats.semLinhaPorEmpresa[p.empresa] !== undefined) stats.semLinhaPorEmpresa[p.empresa]++;
                 }
             });
-            const mkRow = (lbl, v, c, t, val) => {
-                const act = (activeFilter.type === t && activeFilter.value === val) ? 'active-filter' : '';
-                return `<div class="stat-row ${act}" onclick="toggleFiltroStats('${t}', '${val}')"><span class="stat-badge" style="background:${c}">${lbl}</span><span class="stat-val">${v}</span></div>`;
-            };
-            let h = `<div class="stat-row" onclick="limparFiltrosStats()" style="background:rgba(128,128,128,0.05); margin-bottom:10px;"><span style="font-weight:700">TOTAL (Limpar)</span><span class="stat-val">${stats.total}</span></div>`;
-            for (const [e, v] of Object.entries(stats.porEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h += mkRow(e, v, CORES[e], 'empresa', e);
+            let h = `<div class="stat-row" onclick="limparFiltrosStats()" style="background:rgba(128,128,128,0.05); margin-bottom:10px;"><span style="font-weight:700">TOTAL</span><span class="stat-val">${stats.total}</span></div>`;
+            for (const [e, v] of Object.entries(stats.porEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h += `<div class="stat-row" onclick="toggleFiltroStats('empresa', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`;
             document.getElementById('stats-content').innerHTML = h;
             let h2 = '';
-            for (const [e, v] of Object.entries(stats.semLinhaPorEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h2 += mkRow(e, v, CORES[e], 'sem_linha', e);
+            for (const [e, v] of Object.entries(stats.semLinhaPorEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h2 += `<div class="stat-row" onclick="toggleFiltroStats('sem_linha', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`;
             document.getElementById('stats-noline').innerHTML = h2;
         }
 
-        function toggleFiltroStats(type, val) {
-            resetarOutrosModos('sidebar');
-            activeFilter = (activeFilter.type === type && activeFilter.value === val) ? { type: null, value: null } : { type, value: val };
-            renderizarMapa(); 
-            toggleSidebar();
-        }
-        function limparFiltrosStats() { 
-            activeFilter = { type: null, value: null }; 
-            renderizarMapa(); toggleSidebar(); 
+        function toggleFiltroStats(type, val) { resetarOutrosModos('sidebar'); activeFilter = { type, value: val }; renderizarMapa(); toggleSidebar(); }
+        function limparFiltrosStats() { activeFilter = { type: null, value: null }; renderizarMapa(); toggleSidebar(); }
+
+        // Identificação por Nome (API DFTrans traz o nome completo)
+        function getEmpresaPorNome(nome) {
+            const n = nome.toUpperCase();
+            if (n.includes("PIRACICABANA")) return 'PIRACICABANA';
+            if (n.includes("PIONEIRA")) return 'PIONEIRA';
+            if (n.includes("URBI")) return 'URBI';
+            if (n.includes("MARECHAL")) return 'MARECHAL';
+            if (n.includes("BSBUS") || n.includes("SAO JOSE")) return 'BSBUS';
+            return 'DESCONHECIDO';
         }
 
-        function getEmpresa(p) { const s = String(p || ''); if (s.startsWith('1')) return 'PIRACICABANA'; if (s.startsWith('2')) return 'PIONEIRA'; if (s.startsWith('3')) return 'URBI'; if (s.startsWith('4')) return 'MARECHAL'; if (s.startsWith('5') || s.startsWith('7')) return 'BSBUS'; return 'DESCONHECIDO'; }
-        function parseData(s) { if(!s) return null; const p = s.split(' '); if(p.length<2) return null; const d=p[0].split('-'), h=p[1].split(':'); return new Date(d[0], d[1]-1, d[2], h[0], h[1], h[2]); }
+        function parseData(horario) { return horario ? new Date(horario) : null; }
+
         function formatRelativeTimeDetailed(d) {
             if (!d) return "Desconhecido";
             const diff = Math.floor((new Date() - d) / 1000);
             if (diff < 60) return `${diff}s atrás`;
-            const days = Math.floor(diff / 86400);
-            const h = Math.floor((diff % 86400) / 3600);
-            const m = Math.floor((diff % 3600) / 60);
-            const s = diff % 60;
-            let parts = [];
-            if (days > 0) parts.push(`${days}d`);
-            if (h > 0) parts.push(`${h}h`);
-            if (m > 0) parts.push(`${m}m`);
-            if (days === 0 && h === 0) parts.push(`${s}s`);
-            return parts.slice(0, 2).join(' ') + ' atrás';
+            const m = Math.floor(diff / 60);
+            return `${m}m atrás`;
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
         function toggleSettings() { document.getElementById('settings-modal').classList.toggle('open'); document.getElementById('settings-overlay').classList.toggle('open'); }
         function toggleFiltersPopup() { document.getElementById('filter-popup').classList.toggle('show'); }
-        function setTheme(m, s=true) { document.documentElement.setAttribute('data-theme', m==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m); document.querySelectorAll('.theme-btn').forEach(b=>{if(b.id.startsWith('theme-'))b.classList.remove('active')}); document.getElementById(`theme-${m}`)?.classList.add('active'); if(s){appState.theme=m; localStorage.setItem('appTheme', m);} }
-        function setIconStyle(st, s=true) { appState.iconStyle = st; document.querySelectorAll('.icon-style-option').forEach(o=>o.classList.remove('selected')); document.getElementById(`style-${st.toLowerCase()}`).classList.add('selected'); if(s){localStorage.setItem('iconStyle', st); renderizarMapa();} }
-        function setCustomColor(c) { document.documentElement.style.setProperty('--primary', c); appState.customColor = c; localStorage.setItem('customColor', c); }
-        function setRouteBorder(c, s=true) { document.getElementById('route-white').classList.toggle('active', c === 'white'); document.getElementById('route-black').classList.toggle('active', c === 'black'); appState.routeBorder = c; if(s) {localStorage.setItem('routeBorder', c); if(itemSelecionado) desenharTracado(itemSelecionado.cd_linha, getEmpresa(itemSelecionado.prefixo), itemSelecionado.sentido);} }
+        function setTheme(m, s=true) { document.documentElement.setAttribute('data-theme', m==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m); if(s) localStorage.setItem('appTheme', m); }
+        function setIconStyle(st, s=true) { appState.iconStyle = st; if(s){localStorage.setItem('iconStyle', st); renderizarMapa();} }
+        function setCustomColor(c) { document.documentElement.style.setProperty('--primary', c); localStorage.setItem('customColor', c); }
+        function setRouteBorder(c, s=true) { appState.routeBorder = c; if(s) localStorage.setItem('routeBorder', c); }
         
         map.on('click', () => { if (itemSelecionado) resetarSelecao(); document.getElementById('filter-popup').classList.remove('show'); closeBottomSheet(); });
         function toggleLocation() {
-            const btn = document.getElementById('btn-location');
-            if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) { map.removeLayer(userMarker); userMarker = null; } btn.classList.remove('active'); }
-            else { btn.classList.add('active'); map.locate({ setView: true, maxZoom: 15 }); watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); }, null, { enableHighAccuracy: true }); }
+            if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) map.removeLayer(userMarker); }
+            else { watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); }, null, { enableHighAccuracy: true }); }
         }
 
         initApp();
