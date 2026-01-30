@@ -327,7 +327,6 @@
 
     <script>
         // --- CONFIGURAÇÃO ---
-        // NOVA API DFTRANS
         const BASE_API_URL = "https://www.sistemas.dftrans.df.gov.br/service/gps/operacoes";
         const CORES = { "PIRACICABANA": "#449900", "PIONEIRA": "#ffd500", "URBI": "#0080ff", "MARECHAL": "#ff9100", "BSBUS": "#4dff00", "DESCONHECIDO": "#888888" };
 
@@ -350,20 +349,31 @@
             setTheme(appState.theme, false);
             setIconStyle(appState.iconStyle, false);
             setRouteBorder(appState.routeBorder, false);
-            carregarTracado();
+            carregarTracado(); // Carrega o novo JSON local
             atualizarDados();
-            setInterval(atualizarDados, 15000); // API DFTrans atualiza mais lentamente (~15s)
+            setInterval(atualizarDados, 15000); 
             initSwipe();
         }
 
-        async function carregarTracado() { try { const res = await fetch('json/tracado_linha.json'); if (res.ok) dadosTracado = await res.json(); } catch (err) {} }
+        // --- ATUALIZADO PARA O NOVO ARQUIVO ---
+        async function carregarTracado() { 
+            try { 
+                const res = await fetch('json/tracado-geral.json'); 
+                if (res.ok) {
+                    const data = await res.json();
+                    // Suporta tanto o array direto quanto o objeto {tracados: []}
+                    dadosTracado = data.tracados || data; 
+                } 
+            } catch (err) {
+                console.error("Erro ao carregar traçados:", err);
+            } 
+        }
 
         async function atualizarDados() {
             try {
                 const req = await fetch(BASE_API_URL);
                 const json = await req.json();
                 
-                // Mapeamento para manter compatibilidade com seu código original
                 let flattened = [];
                 json.forEach(operadora => {
                     if (operadora.veiculos) {
@@ -375,8 +385,8 @@
                                         cd_linha: v.linha || "",
                                         latitude: v.localizacao.latitude,
                                         longitude: v.localizacao.longitude,
-                                        velocidade: v.velocidade?.valor || 0, // Proteção contra null
-                                        datalocal: v.horario, // Agora é um timestamp
+                                        velocidade: v.velocidade?.valor || 0,
+                                        datalocal: v.horario,
                                         sentido: v.sentido === "IDA" ? "0" : "1"
                                     }
                                 });
@@ -465,7 +475,7 @@
                         }
                     }
                 } else {
-                    const cor = CORES[empresa];
+                    const cor = CORES[empresa] || CORES['DESCONHECIDO'];
                     const htmlIcon = appState.iconStyle === 'A' ? `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>` : `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
                     const marker = L.marker([lat, lng], { icon: L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] }) });
                     if (window.innerWidth >= 768 && !isSelected) { bindTooltipMarker(marker, p, empresa); marker.bindPopup(criarConteudoPopup(p, empresa)); }
@@ -507,8 +517,13 @@
             const isSameLine = itemSelecionado && p.cd_linha && (itemSelecionado.cd_linha === p.cd_linha);
             itemSelecionado = p;
             marker.unbindTooltip(); 
-            if (!p.cd_linha || p.cd_linha.trim() === "") { modoLinhaUnica = false; limparTracado(); } 
-            else { desenharTracado(p.cd_linha, empresa, p.sentido); if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; }
+            if (!p.cd_linha || p.cd_linha.trim() === "") { 
+                modoLinhaUnica = false; 
+                limparTracado(); 
+            } else { 
+                desenharTracado(p.cd_linha, empresa, p.sentido); 
+                if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; 
+            }
             renderizarMapa();
             if (window.innerWidth < 768) openBottomSheet(p, empresa); else marker.openPopup();
             document.getElementById('btn-recenter').classList.add('show');
@@ -530,11 +545,11 @@
 
         function criarConteudoPopup(p, empresa) {
             const d = parseData(p.datalocal);
-            return `<div class="popup-header" style="border-top: 5px solid ${CORES[empresa]};">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</div><div class="popup-body"><div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div><div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val">${empresa}</span></div><div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${p.sentido == '0' ? 'Ida' : 'Volta'}</span></div><div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div><hr style="margin:5px 0;"><div class="popup-row"><span class="popup-label">Sinal</span><span class="popup-val">${formatRelativeTimeDetailed(d)}</span></div></div>`;
+            return `<div class="popup-header" style="border-top: 5px solid ${CORES[empresa] || '#888'};">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</div><div class="popup-body"><div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div><div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val">${empresa}</span></div><div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${p.sentido == '0' ? 'Ida' : 'Volta'}</span></div><div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div><hr style="margin:5px 0;"><div class="popup-row"><span class="popup-label">Sinal</span><span class="popup-val">${formatRelativeTimeDetailed(d)}</span></div></div>`;
         }
 
         function openBottomSheet(p, empresa) {
-            const d = parseData(p.datalocal), timeStr = d ? d.toLocaleTimeString() : '--:--', cor = CORES[empresa];
+            const d = parseData(p.datalocal), timeStr = d ? d.toLocaleTimeString() : '--:--', cor = CORES[empresa] || '#888';
             document.getElementById('sheet-data').innerHTML = `<div class="sheet-header-row"><div class="sheet-title"><div class="status-dot" style="background:${cor}"></div><span style="margin-left:8px;">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span><svg class="wifi-icon" viewBox="0 0 24 24"><circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/><path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="sheet-close" onclick="closeBottomSheet(event)">✕</div></div><div class="info-grid"><div class="info-card"><div class="info-label">Prefixo</div><div class="info-value">${p.prefixo}</div></div><div class="info-card"><div class="info-label">Empresa</div><div class="info-value" style="color:${cor}">${empresa}</div></div><div class="info-card"><div class="info-label">Sentido</div><div class="info-value">${p.sentido == '0' ? 'Ida' : 'Volta'}</div></div><div class="info-card"><div class="info-label">Velocidade</div><div class="info-value" id="sheet-val-vel">${parseInt(p.velocidade)} km/h</div></div><div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${timeStr}</div></div><div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div></div>`;
             document.getElementById('bottom-sheet').classList.add('active');
             document.body.classList.add('sheet-open');
@@ -550,16 +565,38 @@
             sheet.addEventListener('touchend', (e) => { if (startY !== 0) { if (currentY - startY > 100) closeBottomSheet(e); else sheet.style.transform = sheet.classList.contains('active') ? 'translateY(0)' : ''; startY = 0; } });
         }
 
+        // --- ATUALIZADO PARA A NOVA LÓGICA DE SENTIDO E FORMATO ---
         function desenharTracado(cd, emp, sApi) {
-            limparTracado(); if (!dadosTracado || !cd) return;
-            const cands = dadosTracado.filter(x => String(x.cd_linha) === String(cd)); if (!cands.length) return;
-            let rota = cands.find(c => String(c.sentido_linha).toUpperCase() === (sApi == '0' ? 'IDA' : 'VOLTA')) || cands[0];
+            limparTracado(); 
+            if (!dadosTracado || !cd) return;
+
+            // Filtra os traçados da linha clicada
+            const cands = dadosTracado.filter(x => String(x.linha) === String(cd)); 
+            if (!cands.length) return;
+
+            // Lógica: 1º Circular (ignora sentido da API), 2º Mapeia Ida (0->I) ou Volta (1->V)
+            let rota = cands.find(c => c.sentido === "CIRCULAR");
+
+            if (!rota) {
+                const alvo = (sApi === '0') ? 'I' : 'V';
+                rota = cands.find(c => c.sentido === alvo);
+            }
+
+            // Fallback: se não achar o sentido esperado, pega o primeiro disponível
+            if (!rota) rota = cands[0];
+
             try {
-                const coords = JSON.parse(rota.tracado_linha), cor = CORES[emp] || '#000';
+                // No novo JSON, coordenadas já é um Array, não precisa de JSON.parse
+                const coords = rota.coordenadas;
+                const cor = CORES[emp] || '#000';
+                
                 linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.9 }).addTo(map));
                 linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map));
-            } catch (e) {}
+            } catch (e) {
+                console.error("Erro ao desenhar traçado:", e);
+            }
         }
+
         function limparTracado() { linhasTracado.forEach(l => map.removeLayer(l)); linhasTracado = []; }
 
         const searchInput = document.getElementById('search');
@@ -610,7 +647,7 @@
         
         function parseData(s) { 
             if(!s) return null; 
-            if(typeof s === 'number') return new Date(s); // Suporte ao timestamp da nova API
+            if(typeof s === 'number') return new Date(s); 
             const p = s.split(' '); if(p.length<2) return null;
             const d=p[0].split('-'), h=p[1].split(':'); 
             return new Date(d[0], d[1]-1, d[2], h[0], h[1], h[2]); 
