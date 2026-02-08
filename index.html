@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>DF No Ponto 5.0</title>
+    <title>DF No Ponto 7.0</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
             --map-filter: none;
             --bottom-sheet-height: 35vh;
 
-            /* Cores das Empresas */
             --cor-piracicabana: #449900;
             --cor-pioneira: #ffd500;
             --cor-urbi: #0080ff;
@@ -49,17 +48,51 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg-app); }
         
-        /* === SCROLLBARS === */
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
-        .suggestions::-webkit-scrollbar { display: block; width: 4px; }
-        .suggestions::-webkit-scrollbar-thumb { background: var(--text-sec); border-radius: 4px; }
-        .suggestions { -ms-overflow-style: auto; scrollbar-width: thin; }
 
         .map-container { height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
         #map { height: 100%; width: 100%; z-index: 0; filter: var(--map-filter); transition: filter 0.3s; background: var(--bg-app); }
 
-        /* === UI ELEMENTS === */
+        .leaflet-control-attribution { display: none !important; }
+
+        .leaflet-bottom.leaflet-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            bottom: calc(max(30px, env(safe-area-inset-bottom)) + 215px) !important; 
+            margin-right: 15px !important;
+            z-index: 1001;
+            transition: bottom 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        body.sheet-open .leaflet-bottom.leaflet-right { bottom: calc(var(--bottom-sheet-height) + 235px) !important; }
+
+        /* CORREÇÃO DO BOTÃO DE MAPAS */
+        .leaflet-control-layers {
+            border-radius: 12px !important;
+            box-shadow: var(--shadow) !important;
+            border: 1px solid rgba(128,128,128,0.2) !important;
+            margin: 0 !important;
+            background: var(--surface) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+        /* Tamanho fixo apenas quando colapsado */
+        .leaflet-control-layers:not(.leaflet-control-layers-expanded) {
+            width: 44px !important;
+            height: 44px !important;
+            overflow: hidden;
+        }
+        /* Estilo da lista quando aberto */
+        .leaflet-control-layers-expanded {
+            padding: 10px !important;
+            width: auto !important;
+            height: auto !important;
+            color: var(--text-main);
+        }
+        .leaflet-control-layers-toggle { width: 44px !important; height: 44px !important; background-size: 24px 24px !important; }
+
         .glass-panel {
             background: var(--surface);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -73,109 +106,65 @@
         }
         .top-bar > * { pointer-events: auto; }
 
-        .search-container {
-            width: 100%; height: 48px; display: flex; align-items: center; padding: 0 15px; border-radius: 24px; position: relative;
-        }
+        .search-container { width: 100%; height: 48px; display: flex; align-items: center; padding: 0 15px; border-radius: 24px; position: relative; }
         #search { flex: 1; border: none; background: transparent; font-size: 16px; outline: none; height: 100%; color: var(--text-main); font-weight: 500; margin-left: 10px; padding-right: 30px; }
         
-        .search-clear {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            width: 20px; height: 20px; background: rgba(128,128,128,0.2); border-radius: 50%;
-            display: none; justify-content: center; align-items: center; cursor: pointer; color: var(--text-sec); font-size: 12px; font-weight: 800;
-        }
+        .search-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background: rgba(128,128,128,0.2); border-radius: 50%; display: none; justify-content: center; align-items: center; cursor: pointer; color: var(--text-sec); font-size: 12px; font-weight: 800; }
         .search-clear.visible { display: flex; }
 
         .search-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
         .tag { background: var(--text-main); color: var(--surface-solid); font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         
-        .suggestions {
-            background: var(--surface-solid); margin-top: 5px; border-radius: 12px; max-height: 45vh; overflow-y: auto; display: none;
-            box-shadow: var(--shadow); color: var(--text-main); width: 100%;
-        }
-        .suggestion-item { padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
-        .suggestion-item:hover, .suggestion-item.selected { background: rgba(128, 128, 128, 0.1); color: var(--primary); font-weight: 700; }
+        .suggestions { background: var(--surface-solid); margin-top: 5px; border-radius: 12px; max-height: 45vh; overflow-y: auto; display: none; box-shadow: var(--shadow); color: var(--text-main); width: 100%; }
+        .suggestion-item { padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; transition: background 0.1s; }
+        .suggestion-item.highlighted { background: rgba(37, 99, 235, 0.15); color: var(--primary); font-weight: 700; }
 
         /* === BUTTONS === */
-        .fab-container {
-            position: absolute; bottom: max(30px, env(safe-area-inset-bottom)); right: 15px;
-            display: flex; flex-direction: column; gap: 10px; z-index: 900;
-            transition: bottom 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
+        .fab-container { position: absolute; bottom: max(30px, env(safe-area-inset-bottom)); right: 15px; display: flex; flex-direction: column-reverse; gap: 10px; z-index: 900; transition: bottom 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); }
         body.sheet-open .fab-container { bottom: calc(var(--bottom-sheet-height) + 20px); }
 
-        .fab-btn {
-            width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.1s, background 0.2s; color: var(--text-main); border: 1px solid rgba(128,128,128,0.2);
-        }
-        .fab-btn:active { transform: scale(0.92); }
-        .fab-btn.active { background: var(--primary); color: #fff; border: none; }
-        
+        .fab-btn { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.1s, background 0.2s; color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
         #btn-recenter { background: var(--surface-solid); color: var(--primary); border: 2px solid var(--primary); display: none; }
         #btn-recenter.show { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* === BOTTOM SHEET === */
-        .bottom-sheet {
-            position: fixed; left: 0; bottom: 0; width: 100%; height: var(--bottom-sheet-height);
-            background: var(--surface-solid); border-top-left-radius: 24px; border-top-right-radius: 24px;
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.15); z-index: 1100;
-            transform: translateY(110%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            display: flex; flex-direction: column; padding: 0; touch-action: none;
-        }
+        .bottom-sheet { position: fixed; left: 0; bottom: 0; width: 100%; height: var(--bottom-sheet-height); background: var(--surface-solid); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); z-index: 1100; transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; padding: 0; touch-action: none; }
         .bottom-sheet.active { transform: translateY(0); }
-        
         .sheet-handle-bar { width: 100%; height: 30px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; cursor: grab; }
         .sheet-handle { width: 80px; height: 5px; background: rgba(128,128,128,0.3); border-radius: 5px; }
         .sheet-content { flex: 1; padding: 0 20px 20px 20px; overflow-y: auto; }
-        
         .sheet-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .sheet-title { font-size: 20px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; flex: 1; }
-        
-        .sheet-close { 
-            width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
-            background: rgba(128,128,128,0.1); border-radius: 50%; cursor: pointer; font-weight: 600; flex-shrink: 0;
-            z-index: 1101; pointer-events: auto;
-        }
+        .sheet-close { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; background: rgba(128,128,128,0.1); border-radius: 50%; cursor: pointer; font-weight: 600; }
 
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .info-card { background: rgba(128,128,128,0.05); padding: 8px 10px; border-radius: 10px; }
         .info-label { font-size: 10px; text-transform: uppercase; color: var(--text-sec); font-weight: 600; margin-bottom: 2px; }
         .info-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
 
-        @media (min-width: 768px) {
-            .bottom-sheet { display: none !important; }
-            body.sheet-open .fab-container { bottom: 30px; } 
-        }
+        /* === WIFI ICON === */
+        .wifi-icon { width: 20px; height: 20px; color: #00d655; display: block; }
+        .wifi-layer { opacity: 0; animation: wifi-appear 1.5s ease-in-out infinite; }
+        @keyframes wifi-appear { 0% { opacity: 0; } 15% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
+        .layer-1-dot { animation-delay: 0.0s; }
+        .layer-2-arc { animation-delay: 0.15s; }
+        .layer-3-arc { animation-delay: 0.3s; }
+        .layer-4-arc { animation-delay: 0.45s; }
 
-        /* === SIDEBAR & CONFIG === */
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
+        /* === SIDEBAR & FILTERS === */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-        .sidebar-panel {
-            position: fixed; top: 0; left: 0; height: 100%; width: 280px; max-width: 85%;
-            background: var(--surface-solid); z-index: 1200; transform: translateX(-100%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
-            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1);
-        }
+        .sidebar-panel { position: fixed; top: 0; left: 0; height: 100%; width: 280px; max-width: 85%; background: var(--surface-solid); z-index: 1200; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1); }
         .sidebar-panel.open { transform: translateX(0); }
         .sidebar-header { padding: 20px; background: var(--primary); font-weight: 800; font-size: 18px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
         .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; color: var(--text-main); }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: 8px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: 8px; margin-bottom: 4px; }
         .stat-row:hover { background-color: rgba(128, 128, 128, 0.1); }
-        .stat-row.active-filter { background-color: var(--primary); color: white !important; }
         .stat-badge { padding: 3px 8px; border-radius: 6px; color: white; font-size: 12px; font-weight: 700; }
-        .stat-val { font-weight: 700; font-size: 14px; color: var(--text-main); }
+        .stat-val { font-weight: 700; font-size: 14px; }
 
-        .settings-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-            width: 90%; max-width: 340px; background: var(--surface-solid); border-radius: 24px;
-            z-index: 1300; padding: 24px; opacity: 0; pointer-events: none; transition: all 0.2s;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); color: var(--text-main);
-        }
+        .settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 90%; max-width: 340px; background: var(--surface-solid); border-radius: 24px; z-index: 1300; padding: 24px; opacity: 0; pointer-events: none; transition: all 0.2s; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); color: var(--text-main); }
         .settings-modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
         .settings-group { margin-bottom: 24px; }
         .settings-label { font-weight: 700; margin-bottom: 8px; display: block; font-size: 13px; color: var(--text-sec); text-transform: uppercase; }
@@ -187,20 +176,15 @@
         .icon-style-option.selected { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.05); }
         .btn-close-settings { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; }
 
-        .filter-popup {
-            position: absolute; bottom: 150px; right: 15px; width: 220px; padding: 16px;
-            z-index: 1000; display: none; transform-origin: bottom right; animation: scaleIn 0.2s ease;
-        }
+        .filter-popup { position: absolute; bottom: 150px; right: 15px; width: 220px; padding: 16px; z-index: 1000; display: none; transform-origin: bottom right; animation: scaleIn 0.2s ease; }
         .filter-popup.show { display: block; }
         .filter-option { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
 
-        /* === MAP MARKERS === */
+        /* === MARKERS === */
         .bus-marker-inner { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; cursor: pointer; transition: transform 0.1s; }
-        .bus-marker-inner:active { transform: translate(-50%, -50%) scale(0.9); }
         .bus-label-style-a { background: #fff; border: 3px solid #000; color: #000; font-weight: 800; font-size: 10px; padding: 1px 4px; border-radius: 6px; white-space: nowrap; }
         .bus-label-style-b { background: #000; border: 2px solid #000; color: #000; font-weight: 800; font-size: 10px; padding: 1px 4px; border-radius: 6px; white-space: nowrap; }
 
-        /* EFEITO ZEBRADO MOBILE */
         @media (max-width: 768px) {
             .bus-marker-inner.selected-mobile .bus-label-style-a,
             .bus-marker-inner.selected-mobile .bus-label-style-b {
@@ -211,52 +195,9 @@
             }
         }
 
-        /* === POPUP / HOVER === */
-        .leaflet-popup-content-wrapper {
-            background: var(--surface-solid); color: var(--text-main); border-radius: 14px; padding: 0; 
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); font-family: 'Inter', sans-serif; border: none;
-        }
-        .leaflet-popup-content { margin: 0 !important; width: 220px !important; line-height: 1.3; }
-        
-        .leaflet-tooltip { 
-            background: var(--surface-solid) !important;
-            border: 1px solid rgba(0,0,0,0.1) !important;
-            border-radius: 14px !important;
-            color: var(--text-main) !important;
-            box-shadow: 0 3px 14px rgba(0,0,0,0.2) !important;
-            padding: 0 !important;
-            font-family: 'Inter', sans-serif;
-            min-width: 200px !important;
-            white-space: normal;
-        }
-        
-        .leaflet-tooltip-left:before { border-left-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-right:before { border-right-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-bottom:before { border-bottom-color: var(--surface-solid) !important; }
-        .leaflet-tooltip-top:before { border-top-color: var(--surface-solid) !important; }
-
-        .leaflet-container a.leaflet-popup-close-button { top: 6px; right: 6px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.5); font-size: 16px; }
-        .leaflet-popup-tip { background: var(--surface-solid); }
-        
-        .popup-header { 
-            padding: 8px; 
-            font-weight: 800; text-align: center; border-radius: 14px 14px 0 0; 
-            font-size: 14px; color: #000; background: rgba(128,128,128,0.1); border-top: 4px solid transparent; 
-        }
-        .popup-body { padding: 8px 12px; font-size: 12px; }
-        .popup-row { display: flex; justify-content: space-between; margin-bottom: 3px; align-items: flex-start; }
-        .popup-label { color: var(--text-sec); font-weight: 500; }
-        .popup-val { font-weight: 700; color: var(--text-main); text-align: right; }
         .user-location-marker { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3); }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-        .wifi-icon { width: 20px; height: 20px; color: #00d655; display: block; }
-        .wifi-layer { opacity: 0; animation: wifi-appear 1.5s ease-in-out infinite; }
-        @keyframes wifi-appear { 0% { opacity: 0; } 15% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
-        .layer-1-dot { animation-delay: 0.0s; }
-        .layer-2-arc { animation-delay: 0.15s; }
-        .layer-3-arc { animation-delay: 0.3s; }
-        .layer-4-arc { animation-delay: 0.45s; }
     </style>
 </head>
 
@@ -267,7 +208,7 @@
     <div class="top-bar">
         <div class="glass-panel search-container">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-sec)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="search" placeholder="Buscar linha ou prefixo..." autocomplete="off">
+            <input type="text" id="search" placeholder="Linha ou prefixo..." autocomplete="off" inputmode="numeric">
             <div class="search-clear" id="btn-search-clear" onclick="limparBuscaInput()">✕</div>
         </div>
         <div id="search-tags" class="search-tags"></div>
@@ -275,13 +216,18 @@
     </div>
 
     <div class="fab-container">
+        <div class="fab-btn glass-panel" id="btn-location" onclick="toggleLocation()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle></svg></div>
+        <div class="fab-btn glass-panel" id="btn-filter" onclick="toggleFiltersPopup(event)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
+        <div class="fab-btn glass-panel" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path></svg></div>
+        <div class="fab-btn glass-panel" onclick="toggleSettings()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </div>
         <div class="fab-btn glass-panel" id="btn-recenter" onclick="fitBusRoute()">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </div>
-        <div class="fab-btn glass-panel" onclick="toggleSettings()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
-        <div class="fab-btn glass-panel" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path></svg></div>
-        <div class="fab-btn glass-panel" id="btn-filter" onclick="toggleFiltersPopup()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
-        <div class="fab-btn glass-panel" id="btn-location" onclick="toggleLocation()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle></svg></div>
     </div>
 
     <div id="bottom-sheet" class="bottom-sheet">
@@ -290,16 +236,16 @@
     </div>
 
     <div class="glass-panel filter-popup" id="filter-popup">
-        <div style="font-weight:800; margin-bottom:12px; font-size:12px; color:var(--text-sec); letter-spacing:0.5px;">FILTRAR EMPRESAS</div>
-        <label class="filter-option"><input type="checkbox" id="chk-todos" checked> <span>Todas</span></label>
+        <div style="font-weight:800; margin-bottom:12px; font-size:12px; color:var(--text-sec);">FILTRAR EMPRESAS</div>
+        <label class="filter-option"><input type="checkbox" id="chk-todos" checked onchange="toggleTodosFiltros(this.checked)"> <span>Todas</span></label>
         <div style="height:1px; background:var(--border); margin:8px 0;"></div>
-        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="PIRACICABANA" checked> <span style="color:var(--cor-piracicabana)">Piracicabana</span></label>
-        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="PIONEIRA" checked> <span style="color:var(--cor-pioneira)">Pioneira</span></label>
-        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="URBI" checked> <span style="color:var(--cor-urbi)">Urbi</span></label>
-        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="MARECHAL" checked> <span style="color:var(--cor-marechal)">Marechal</span></label>
-        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="BSBUS" checked> <span style="color:var(--cor-bsbus)">BsBus</span></label>
+        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="PIRACICABANA" checked onchange="renderizarMapa()"> <span style="color:var(--cor-piracicabana)">Piracicabana</span></label>
+        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="PIONEIRA" checked onchange="renderizarMapa()"> <span style="color:var(--cor-pioneira)">Pioneira</span></label>
+        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="URBI" checked onchange="renderizarMapa()"> <span style="color:var(--cor-urbi)">Urbi</span></label>
+        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="MARECHAL" checked onchange="renderizarMapa()"> <span style="color:var(--cor-marechal)">Marechal</span></label>
+        <label class="filter-option"><input class="chk-empresa" type="checkbox" value="BSBUS" checked onchange="renderizarMapa()"> <span style="color:var(--cor-bsbus)">BsBus</span></label>
         <div style="height:1px; background:var(--border); margin:8px 0;"></div>
-        <label class="filter-option"><input type="checkbox" id="chk-sem-linha"> <span>Exibir Sem Linha</span></label>
+        <label class="filter-option"><input type="checkbox" id="chk-sem-linha" onchange="renderizarMapa()"> <span>Exibir Sem Linha</span></label>
     </div>
 
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -308,40 +254,71 @@
         <div class="sidebar-content">
             <h4 style="margin: 10px 0; font-size:12px; text-transform:uppercase; color:var(--text-sec);">Resumo da Frota</h4>
             <div id="stats-content">Carregando...</div>
-            <h4 style="margin: 20px 0 10px 0; font-size:12px; text-transform:uppercase; color:var(--text-sec);">Sem Linha Definida</h4>
-            <div id="stats-noline">--</div>
         </div>
     </div>
 
     <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
     <div class="settings-modal" id="settings-modal">
         <h3 style="margin-bottom:20px; text-align:center; font-weight:800;">Configurações</h3>
-        <div class="settings-group"><label class="settings-label">Tema da Aplicação</label><div class="theme-options"><div class="theme-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div><div class="theme-btn" onclick="setTheme('light')" id="theme-light">Claro</div><div class="theme-btn" onclick="setTheme('dark')" id="theme-dark">Escuro</div></div></div>
-        <div class="settings-group"><label class="settings-label">Cor de Destaque (App)</label><div class="color-picker-row"><span>Personalizada</span><input type="color" id="custom-color-picker" onchange="setCustomColor(this.value)"></div></div>
-        <div class="settings-group"><label class="settings-label">Estilo dos Marcadores</label><div class="icon-style-option" onclick="setIconStyle('A')" id="style-a"><div style="background:#fff; border:2px solid var(--primary); color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div><span>Fundo Branco</span></div><div class="icon-style-option" onclick="setIconStyle('B')" id="style-b"><div style="background:var(--primary); border:2px solid #000; color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div><span>Fundo Colorido</span></div></div>
-        <div class="settings-group"><label class="settings-label">Borda do Traçado</label><div class="theme-options"><div class="theme-btn" onclick="setRouteBorder('white')" id="route-white">Branca</div><div class="theme-btn" onclick="setRouteBorder('black')" id="route-black">Preta</div></div></div>
+        <div class="settings-group">
+            <label class="settings-label">Tema da Aplicação</label>
+            <div class="theme-options">
+                <div class="theme-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div>
+                <div class="theme-btn" onclick="setTheme('light')" id="theme-light">Claro</div>
+                <div class="theme-btn" onclick="setTheme('dark')" id="theme-dark">Escuro</div>
+            </div>
+        </div>
+        <div class="settings-group">
+            <label class="settings-label">Cor de Destaque (App)</label>
+            <div class="color-picker-row"><span>Personalizada</span><input type="color" id="custom-color-picker" onchange="setCustomColor(this.value)"></div>
+        </div>
+        <div class="settings-group">
+            <label class="settings-label">Estilo dos Marcadores</label>
+            <div class="icon-style-option" onclick="setIconStyle('A')" id="style-a">
+                <div style="background:#fff; border:2px solid var(--primary); color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div>
+                <span>Fundo Branco</span>
+            </div>
+            <div class="icon-style-option" onclick="setIconStyle('B')" id="style-b">
+                <div style="background:var(--primary); border:2px solid #000; color:#000; padding:1px 6px; border-radius:6px; font-weight:800; font-size:10px;">123</div>
+                <span>Fundo Colorido</span>
+            </div>
+        </div>
+        <div class="settings-group">
+            <label class="settings-label">Borda do Traçado</label>
+            <div class="theme-options">
+                <div class="theme-btn" onclick="setRouteBorder('white')" id="route-white">Branca</div>
+                <div class="theme-btn" onclick="setRouteBorder('black')" id="route-black">Preta</div>
+            </div>
+        </div>
         <button class="btn-close-settings" onclick="toggleSettings()">FECHAR</button>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // --- CONFIGURAÇÃO ---
-        const BASE_API_URL = "https://www.sistemas.dftrans.df.gov.br/service/gps/operacoes";
+        const BASE_API_URL = "https://backend-semob.vercel.app/api_semob_df/ultima-localizacao";
         const CORES = { "PIRACICABANA": "#449900", "PIONEIRA": "#ffd500", "URBI": "#0080ff", "MARECHAL": "#ff9100", "BSBUS": "#4dff00", "DESCONHECIDO": "#888888" };
 
         let appState = {
             theme: localStorage.getItem('appTheme') || 'auto',
             iconStyle: localStorage.getItem('iconStyle') || 'A',
             customColor: localStorage.getItem('customColor') || '#2563eb',
-            routeBorder: localStorage.getItem('routeBorder') || 'white'
+            routeBorder: localStorage.getItem('routeBorder') || 'white',
+            activeLayer: localStorage.getItem('activeMapLayer') || "Ruas"
         };
 
-        const map = L.map('map', { zoomControl: false, tap: true }).setView([-15.7942, -47.8822], 11);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        const cartoVoyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { detectRetina: true });
+        const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { maxZoom: 20, maxNativeZoom: 19, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], detectRetina: true });
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { detectRetina: true });
+        const esriSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { detectRetina: true });
+
+        const layersMap = { "Ruas": cartoVoyager, "Híbrido": googleHybrid, "Padrão": osm, "Satélite": esriSatelite };
+
+        const map = L.map('map', { zoomControl: false, tap: true, layers: [layersMap[appState.activeLayer]] }).setView([-15.7942, -47.8822], 11);
+        L.control.layers(layersMap, null, { collapsed: true, position: 'bottomright' }).addTo(map);
+        map.on('baselayerchange', (e) => { localStorage.setItem('activeMapLayer', e.name); });
 
         const busLayer = L.layerGroup().addTo(map);
-
         let markersRegistry = {}, todosDados = [], amostragemIds = new Set(), modoAmostragem = true, termosBusca = [], dadosTracado = null, linhasTracado = [], activeFilter = { type: null, value: null }, itemSelecionado = null, modoLinhaUnica = false, userMarker = null, watchId = null;
 
         function initApp() {
@@ -349,74 +326,39 @@
             setTheme(appState.theme, false);
             setIconStyle(appState.iconStyle, false);
             setRouteBorder(appState.routeBorder, false);
-            carregarTracado(); // Carrega o novo JSON local
+            carregarTracado();
             atualizarDados();
-            setInterval(atualizarDados, 15000); 
+            setInterval(atualizarDados, 15000);
+            setInterval(() => { if (itemSelecionado) { const statusEl = document.getElementById('sheet-val-status'); if (statusEl) { const d = parseData(itemSelecionado.datalocal); statusEl.innerHTML = formatRelativeTimeDetailed(d); } } }, 1000);
             initSwipe();
         }
 
-        // --- ATUALIZADO PARA O NOVO ARQUIVO ---
-        async function carregarTracado() { 
-            try { 
-                const res = await fetch('json/tracado-geral.json'); 
-                if (res.ok) {
-                    const data = await res.json();
-                    // Suporta tanto o array direto quanto o objeto {tracados: []}
-                    dadosTracado = data.tracados || data; 
-                } 
-            } catch (err) {
-                console.error("Erro ao carregar traçados:", err);
-            } 
-        }
+        async function carregarTracado() { try { const res = await fetch('json/tracado-geral.json'); if (res.ok) { const data = await res.json(); dadosTracado = data.tracados || data; } } catch (e) { console.error(e); } }
 
         async function atualizarDados() {
             try {
                 const req = await fetch(BASE_API_URL);
                 const json = await req.json();
-                
-                let flattened = [];
-                json.forEach(operadora => {
-                    if (operadora.veiculos) {
-                        operadora.veiculos.forEach(v => {
-                            if (v.localizacao && v.localizacao.latitude) {
-                                flattened.push({
-                                    properties: {
-                                        prefixo: v.numero,
-                                        cd_linha: v.linha || "",
-                                        latitude: v.localizacao.latitude,
-                                        longitude: v.localizacao.longitude,
-                                        velocidade: v.velocidade?.valor || 0,
-                                        datalocal: v.horario,
-                                        sentido: v.sentido === "IDA" ? "0" : "1"
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-
-                todosDados = flattened;
+                todosDados = json.map(v => ({ properties: { prefixo: v.prefixo, cd_linha: v.linha || "", latitude: v.latitude, longitude: v.longitude, velocidade: v.velocidade || 0, datalocal: v.data_local, sentido: v.sentido } }));
+                if (itemSelecionado) { const match = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo)); if (match) { itemSelecionado = match.properties; atualizarInterfacePainel(); } }
                 if (amostragemIds.size === 0) gerarAmostragemInicial();
                 renderizarMapa(); 
                 atualizarEstatisticas();
-                atualizarInterfaceTempoReal();
-            } catch (e) { console.error("Erro na busca:", e); }
+            } catch (e) { console.error(e); }
         }
 
         function gerarAmostragemInicial() {
             amostragemIds.clear();
             const porEmpresa = {};
-            const candidatos = todosDados.filter(f => f.properties.cd_linha && f.properties.cd_linha.trim() !== "" && parseFloat(f.properties.velocidade) > 0);
-            candidatos.forEach(f => {
+            todosDados.filter(f => f.properties.cd_linha && parseFloat(f.properties.velocidade) > 0).forEach(f => {
                 const emp = getEmpresa(f.properties.prefixo);
                 if (!porEmpresa[emp]) porEmpresa[emp] = [];
                 porEmpresa[emp].push(f.properties.prefixo);
             });
-            Object.keys(porEmpresa).forEach(emp => {
-                const lista = porEmpresa[emp];
-                lista.sort(() => 0.5 - Math.random()).slice(0, 20).forEach(id => amostragemIds.add(String(id)));
-            });
+            Object.keys(porEmpresa).forEach(emp => porEmpresa[emp].sort(() => 0.5 - Math.random()).slice(0, 20).forEach(id => amostragemIds.add(String(id))));
         }
+
+        function isFiltroPopupCustomizado() { return document.getElementById('chk-sem-linha').checked || Array.from(document.querySelectorAll('.chk-empresa')).some(c => !c.checked); }
 
         function renderizarMapa() {
             const temBusca = termosBusca.length > 0, temFiltroMenu = !!activeFilter.type, temSelecao = !!itemSelecionado;
@@ -427,58 +369,45 @@
             
             todosDados.forEach(feature => {
                 const p = feature.properties;
-                const lat = parseFloat(p.latitude), lng = parseFloat(p.longitude);
-                if (!lat || lat === 0) return;
                 const id = String(p.prefixo), empresa = getEmpresa(p.prefixo), isSemLinha = !p.cd_linha || p.cd_linha.trim() === "";
-
-                let isAlvoEspecifico = false;
-                if (itemSelecionado && String(itemSelecionado.prefixo) === id) isAlvoEspecifico = true;
-                else if (termosBusca.length > 0) {
-                    const txtBusca = (String(p.cd_linha || "") + " " + String(p.prefixo)).toLowerCase();
-                    if (termosBusca.some(t => txtBusca.includes(t.toLowerCase()))) isAlvoEspecifico = true;
-                }
+                
+                let isAlvoEspecifico = (itemSelecionado && String(itemSelecionado.prefixo) === id);
+                if (!isAlvoEspecifico && temBusca) isAlvoEspecifico = termosBusca.some(t => (String(p.cd_linha || "") + " " + String(p.prefixo)).toLowerCase().includes(t.toLowerCase()));
 
                 let visivel = true;
                 if (isAlvoEspecifico) visivel = true;
-                else if (modoLinhaUnica && itemSelecionado) { if (String(p.cd_linha) !== String(itemSelecionado.cd_linha)) visivel = false; }
-                else if (termosBusca.length > 0) visivel = false;
+                else if (modoLinhaUnica && itemSelecionado) visivel = (String(p.cd_linha) === String(itemSelecionado.cd_linha));
+                else if (temBusca) visivel = false;
                 else if (temFiltroMenu) {
                     if (activeFilter.type === 'empresa' && empresa !== activeFilter.value) visivel = false;
-                    if (activeFilter.type === 'sem_linha') { if ((activeFilter.value && empresa !== activeFilter.value) || !isSemLinha) visivel = false; }
+                    if (activeFilter.type === 'sem_linha') visivel = (empresa === activeFilter.value && isSemLinha);
                 }
-                else if (modoAmostragem) {
-                    const dataObj = parseData(p.datalocal);
-                    if (!dataObj || (Date.now() - dataObj.getTime()) > 300000 || !amostragemIds.has(id)) visivel = false;
-                }
+                else if (modoAmostragem) visivel = amostragemIds.has(id);
                 else {
                     if (!chkEmpresas.includes(empresa)) visivel = false;
-                    if (chkSemLinha) { if (!isSemLinha) visivel = false; }
-                    else { if (isSemLinha || parseFloat(p.velocidade) === 0) visivel = false; }
+                    if (chkSemLinha) visivel = isSemLinha;
+                    else if (isSemLinha || parseFloat(p.velocidade) === 0) visivel = false;
                 }
 
                 if (!visivel) { if (markersRegistry[id]) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; } return; }
                 validIds.add(id);
 
                 const txt = isSemLinha ? p.prefixo : p.cd_linha;
+                const cor = CORES[empresa] || CORES['DESCONHECIDO'];
                 const isSelected = itemSelecionado && String(itemSelecionado.prefixo) === id;
                 const extraClass = isSelected ? 'selected-mobile' : '';
 
+                const htmlIcon = appState.iconStyle === 'A' ? 
+                    `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>` : 
+                    `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
+
                 if (markersRegistry[id]) {
                     const mk = markersRegistry[id];
-                    mk.setLatLng([lat, lng]);
+                    mk.setLatLng([p.latitude, p.longitude]);
                     const el = mk.getElement();
-                    if (el) {
-                        const inner = el.querySelector('.bus-marker-inner');
-                        if (inner) {
-                            if (isSelected) inner.classList.add('selected-mobile');
-                            else inner.classList.remove('selected-mobile');
-                        }
-                    }
+                    if (el) el.innerHTML = htmlIcon; 
                 } else {
-                    const cor = CORES[empresa] || CORES['DESCONHECIDO'];
-                    const htmlIcon = appState.iconStyle === 'A' ? `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-a" style="border-color:${cor}">${txt}</div></div>` : `<div class="bus-marker-inner ${extraClass}"><div class="bus-label-style-b" style="background:${cor}">${txt}</div></div>`;
-                    const marker = L.marker([lat, lng], { icon: L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] }) });
-                    if (window.innerWidth >= 768 && !isSelected) { bindTooltipMarker(marker, p, empresa); marker.bindPopup(criarConteudoPopup(p, empresa)); }
+                    const marker = L.marker([p.latitude, p.longitude], { icon: L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] }) });
                     marker.on('click', (e) => { L.DomEvent.stopPropagation(e); handleBusClick(p, empresa, marker); });
                     busLayer.addLayer(marker);
                     markersRegistry[id] = marker;
@@ -487,193 +416,66 @@
             for (let id in markersRegistry) if (!validIds.has(id)) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; }
         }
 
-        function isFiltroPopupCustomizado() { return document.getElementById('chk-sem-linha').checked || Array.from(document.querySelectorAll('.chk-empresa')).some(c => !c.checked); }
+        function toggleFiltersPopup(e) { if (e) L.DomEvent.stopPropagation(e); document.getElementById('filter-popup').classList.toggle('show'); }
+        function toggleTodosFiltros(checked) { document.querySelectorAll('.chk-empresa').forEach(cb => cb.checked = checked); renderizarMapa(); }
+        function handleBusClick(p, empresa, marker) { itemSelecionado = p; if (p.cd_linha) desenharTracado(p.cd_linha, empresa, p.sentido); else limparTracado(); if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; renderizarMapa(); openBottomSheet(p, empresa); document.getElementById('btn-recenter').classList.add('show'); fitBusRoute(); }
+        function openBottomSheet(p, empresa) { const sheet = document.getElementById('bottom-sheet'); sheet.style.transform = ''; sheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'; atualizarInterfacePainel(); sheet.classList.add('active'); document.body.classList.add('sheet-open'); }
 
-        function resetarOutrosModos(origem) {
-            if (origem === 'popup') { activeFilter = { type: null, value: null }; termosBusca = []; document.getElementById('search-tags').innerHTML = ''; limparBuscaInput(true); if(itemSelecionado) resetarSelecao(); }
-            if (origem === 'sidebar' || origem === 'busca') document.getElementById('chk-sem-linha').checked = false;
-            if (origem === 'sidebar') { termosBusca = []; document.getElementById('search-tags').innerHTML = ''; limparBuscaInput(true); if(itemSelecionado) resetarSelecao(); }
-            if (origem === 'busca') { activeFilter = { type: null, value: null }; if(itemSelecionado) resetarSelecao(); }
-        }
-
-        document.querySelectorAll('.chk-empresa, #chk-sem-linha, #chk-todos').forEach(el => { el.addEventListener('change', e => { if (e.target.id === 'chk-todos') document.querySelectorAll('.chk-empresa').forEach(c => c.checked = e.target.checked); resetarOutrosModos('popup'); renderizarMapa(); }); });
-
-        function bindTooltipMarker(marker, p, empresa) { marker.bindTooltip(criarConteudoPopup(p, empresa), { direction: 'auto', className: 'leaflet-tooltip', opacity: 1, permanent: false }); }
-
-        function atualizarInterfaceTempoReal() {
+        function atualizarInterfacePainel() {
             if (!itemSelecionado) return;
-            const dadosNovos = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo));
-            if (!dadosNovos) return;
-            const p = dadosNovos.properties;
-            if (document.getElementById('bottom-sheet').classList.contains('active')) {
-                const d = parseData(p.datalocal);
-                if (document.getElementById('sheet-val-vel')) document.getElementById('sheet-val-vel').innerText = parseInt(p.velocidade) + ' km/h';
-                if (document.getElementById('sheet-val-time')) document.getElementById('sheet-val-time').innerText = d ? d.toLocaleTimeString() : '--:--';
-                if (document.getElementById('sheet-val-status')) document.getElementById('sheet-val-status').innerHTML = formatRelativeTimeDetailed(d);
-            }
+            const p = itemSelecionado, empresa = getEmpresa(p.prefixo), d = parseData(p.datalocal), cor = CORES[empresa] || '#888';
+            document.getElementById('sheet-data').innerHTML = `
+                <div class="sheet-header-row">
+                    <div class="sheet-title">
+                        <div class="status-dot" style="background:${cor}"></div>
+                        <span>${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span>
+                        <svg class="wifi-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/>
+                            <path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            <path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            <path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
+                    <div class="sheet-close" onclick="closeBottomSheet()">✕</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-card"><div class="info-label">PREFIXO</div><div class="info-value">${p.prefixo}</div></div>
+                    <div class="info-card"><div class="info-label">EMPRESA</div><div class="info-value" style="color:${cor}">${empresa}</div></div>
+                    <div class="info-card"><div class="info-label">SENTIDO</div><div class="info-value">${p.sentido == '1' ? 'Volta' : 'Ida'}</div></div>
+                    <div class="info-card"><div class="info-label">VELOCIDADE</div><div class="info-value">${parseInt(p.velocidade)} km/h</div></div>
+                    <div class="info-card"><div class="info-label">ATUALIZADO</div><div class="info-value">${d ? d.toTimeString().split(' ')[0] : '--'}</div></div>
+                    <div class="info-card"><div class="info-label">STATUS</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div>
+                </div>`;
         }
 
-        function handleBusClick(p, empresa, marker) {
-            const isSameLine = itemSelecionado && p.cd_linha && (itemSelecionado.cd_linha === p.cd_linha);
-            itemSelecionado = p;
-            marker.unbindTooltip(); 
-            if (!p.cd_linha || p.cd_linha.trim() === "") { 
-                modoLinhaUnica = false; 
-                limparTracado(); 
-            } else { 
-                desenharTracado(p.cd_linha, empresa, p.sentido); 
-                if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; 
-            }
-            renderizarMapa();
-            if (window.innerWidth < 768) openBottomSheet(p, empresa); else marker.openPopup();
-            document.getElementById('btn-recenter').classList.add('show');
-            if (!isSameLine) fitBusRoute();
-        }
-
-        function fitBusRoute() {
-            if (!itemSelecionado) return;
-            const marker = markersRegistry[String(itemSelecionado.prefixo)], group = new L.FeatureGroup();
-            if (marker) group.addLayer(marker);
-            if (linhasTracado.length > 0) linhasTracado.forEach(l => group.addLayer(l));
-            if (group.getLayers().length > 0) {
-                const padding = document.body.classList.contains('sheet-open') ? (window.innerHeight * 0.35 + 40) : 50;
-                map.fitBounds(group.getBounds(), { paddingTopLeft: [50, 50], paddingBottomRight: [50, padding], maxZoom: 15, animate: true });
-            }
-        }
-
-        function resetarSelecao() { itemSelecionado = null; modoLinhaUnica = false; limparTracado(); document.getElementById('btn-recenter').classList.remove('show'); closeBottomSheet(); renderizarMapa(); }
-
-        function criarConteudoPopup(p, empresa) {
-            const d = parseData(p.datalocal);
-            return `<div class="popup-header" style="border-top: 5px solid ${CORES[empresa] || '#888'};">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</div><div class="popup-body"><div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div><div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val">${empresa}</span></div><div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${p.sentido == '0' ? 'Ida' : 'Volta'}</span></div><div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div><hr style="margin:5px 0;"><div class="popup-row"><span class="popup-label">Sinal</span><span class="popup-val">${formatRelativeTimeDetailed(d)}</span></div></div>`;
-        }
-
-        function openBottomSheet(p, empresa) {
-            const d = parseData(p.datalocal), timeStr = d ? d.toLocaleTimeString() : '--:--', cor = CORES[empresa] || '#888';
-            document.getElementById('sheet-data').innerHTML = `<div class="sheet-header-row"><div class="sheet-title"><div class="status-dot" style="background:${cor}"></div><span style="margin-left:8px;">${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}</span><svg class="wifi-icon" viewBox="0 0 24 24"><circle class="wifi-layer layer-1-dot" cx="12" cy="21" r="2" fill="currentColor"/><path class="wifi-layer layer-2-arc" d="M7.76 16.24C8.88 15.12 10.39 14.5 12 14.5C13.61 14.5 15.12 15.12 16.24 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-3-arc" d="M4.93 13.41C6.8 11.54 9.32 10.5 12 10.5C14.68 10.5 17.2 11.54 19.07 13.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="wifi-layer layer-4-arc" d="M2.1 10.59C4.73 7.95 8.27 6.5 12 6.5C15.73 6.5 19.27 7.95 21.9 10.59" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="sheet-close" onclick="closeBottomSheet(event)">✕</div></div><div class="info-grid"><div class="info-card"><div class="info-label">Prefixo</div><div class="info-value">${p.prefixo}</div></div><div class="info-card"><div class="info-label">Empresa</div><div class="info-value" style="color:${cor}">${empresa}</div></div><div class="info-card"><div class="info-label">Sentido</div><div class="info-value">${p.sentido == '0' ? 'Ida' : 'Volta'}</div></div><div class="info-card"><div class="info-label">Velocidade</div><div class="info-value" id="sheet-val-vel">${parseInt(p.velocidade)} km/h</div></div><div class="info-card"><div class="info-label">Atualizado</div><div class="info-value" id="sheet-val-time">${timeStr}</div></div><div class="info-card"><div class="info-label">Status</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div></div>`;
-            document.getElementById('bottom-sheet').classList.add('active');
-            document.body.classList.add('sheet-open');
-        }
-
-        function closeBottomSheet(e) { if (e) { e.stopPropagation(); e.preventDefault(); } const sheet = document.getElementById('bottom-sheet'); sheet.style.transform = ''; sheet.classList.remove('active'); document.body.classList.remove('sheet-open'); }
-
-        function initSwipe() {
-            const sheet = document.getElementById('bottom-sheet');
-            let startY = 0, currentY = 0;
-            sheet.addEventListener('touchstart', (e) => { if (document.querySelector('.sheet-content').scrollTop === 0) startY = e.touches[0].clientY; }, {passive: true});
-            sheet.addEventListener('touchmove', (e) => { if (startY !== 0) { currentY = e.touches[0].clientY; const diff = currentY - startY; if (diff > 0) sheet.style.transform = `translateY(${diff}px)`; } }, {passive: true});
-            sheet.addEventListener('touchend', (e) => { if (startY !== 0) { if (currentY - startY > 100) closeBottomSheet(e); else sheet.style.transform = sheet.classList.contains('active') ? 'translateY(0)' : ''; startY = 0; } });
-        }
-
-        // --- ATUALIZADO PARA A NOVA LÓGICA DE SENTIDO E FORMATO ---
-        function desenharTracado(cd, emp, sApi) {
-            limparTracado(); 
-            if (!dadosTracado || !cd) return;
-
-            // Filtra os traçados da linha clicada
-            const cands = dadosTracado.filter(x => String(x.linha) === String(cd)); 
-            if (!cands.length) return;
-
-            // Lógica: 1º Circular (ignora sentido da API), 2º Mapeia Ida (0->I) ou Volta (1->V)
-            let rota = cands.find(c => c.sentido === "CIRCULAR");
-
-            if (!rota) {
-                const alvo = (sApi === '0') ? 'I' : 'V';
-                rota = cands.find(c => c.sentido === alvo);
-            }
-
-            // Fallback: se não achar o sentido esperado, pega o primeiro disponível
-            if (!rota) rota = cands[0];
-
-            try {
-                // No novo JSON, coordenadas já é um Array, não precisa de JSON.parse
-                const coords = rota.coordenadas;
-                const cor = CORES[emp] || '#000';
-                
-                linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.9 }).addTo(map));
-                linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map));
-            } catch (e) {
-                console.error("Erro ao desenhar traçado:", e);
-            }
-        }
-
-        function limparTracado() { linhasTracado.forEach(l => map.removeLayer(l)); linhasTracado = []; }
-
-        const searchInput = document.getElementById('search');
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            document.getElementById('btn-search-clear').classList.toggle('visible', val.length > 0);
-            clearTimeout(window.debounceTimer);
-            window.debounceTimer = setTimeout(() => executarBusca(val), 300);
-        });
-
-        function executarBusca(val) {
-            val = val.toLowerCase(); if (!val) { suggestions.style.display = 'none'; return; }
-            const matches = Array.from(new Set(todosDados.flatMap(f => [f.properties.cd_linha, f.properties.prefixo]))).filter(x => x && String(x).toLowerCase().includes(val)).slice(0, 10);
-            suggestions.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSuggestion('${m}')">${m}</div>`).join('');
-            suggestions.style.display = 'block';
-        }
-
-        function selectSuggestion(val) {
-            resetarOutrosModos('busca');
-            if (!termosBusca.includes(val)) {
-                termosBusca.push(val);
-                const div = document.createElement('div'); div.className = 'tag'; div.innerHTML = `${val} <span>✕</span>`;
-                div.onclick = () => { termosBusca = termosBusca.filter(x => x !== val); div.remove(); resetarSelecao(); };
-                document.getElementById('search-tags').appendChild(div);
-            }
-            limparBuscaInput(false); resetarSelecao(); renderizarMapa();
-        }
-
-        function limparBuscaInput(blur = true) { searchInput.value = ''; document.getElementById('btn-search-clear').classList.remove('visible'); suggestions.style.display = 'none'; if (!blur) searchInput.focus(); }
-
-        function atualizarEstatisticas() {
-            const stats = { total: 0, porEmpresa: {}, semLinha: 0, semLinhaPorEmpresa: {} };
-            Object.keys(CORES).forEach(k => { stats.porEmpresa[k] = 0; stats.semLinhaPorEmpresa[k] = 0; });
-            todosDados.forEach(f => {
-                const p = f.properties, emp = getEmpresa(p.prefixo);
-                stats.total++; if (stats.porEmpresa[emp] !== undefined) stats.porEmpresa[emp]++;
-                if (!p.cd_linha || p.cd_linha.trim() === "") { stats.semLinha++; if (stats.semLinhaPorEmpresa[emp] !== undefined) stats.semLinhaPorEmpresa[emp]++; }
-            });
-            let h = `<div class="stat-row" onclick="limparFiltrosStats()" style="background:rgba(128,128,128,0.05); margin-bottom:10px;"><span style="font-weight:700">TOTAL</span><span class="stat-val">${stats.total}</span></div>`;
-            for (const [e, v] of Object.entries(stats.porEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) h += `<div class="stat-row" onclick="toggleFiltroStats('empresa', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`;
-            document.getElementById('stats-content').innerHTML = h;
-        }
-
-        function toggleFiltroStats(type, val) { resetarOutrosModos('sidebar'); activeFilter = { type, value: val }; renderizarMapa(); toggleSidebar(); }
-        function limparFiltrosStats() { activeFilter = { type: null, value: null }; renderizarMapa(); toggleSidebar(); }
-
+        function initSwipe() { const sheet = document.getElementById('bottom-sheet'); let startY = 0, currentY = 0, startTime = 0; sheet.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; startTime = Date.now(); sheet.style.transition = 'none'; }, {passive: true}); sheet.addEventListener('touchmove', (e) => { currentY = e.touches[0].clientY; const diff = currentY - startY; if (diff > 0) sheet.style.transform = `translateY(${diff}px)`; }, {passive: true}); sheet.addEventListener('touchend', (e) => { const diff = currentY - startY; const duration = Date.now() - startTime; const velocity = diff / duration; sheet.style.transition = 'transform 0.3s cubic-bezier(0.1, 0.5, 0.1, 1)'; if (diff > 120 || velocity > 0.5) closeBottomSheet(); else sheet.style.transform = 'translateY(0)'; startY = 0; currentY = 0; }); }
+        function closeBottomSheet() { const sheet = document.getElementById('bottom-sheet'); sheet.style.transform = 'translateY(110%)'; sheet.classList.remove('active'); document.body.classList.remove('sheet-open'); }
+        function atualizarEstatisticas() { const stats = { total: 0, porEmpresa: {} }; Object.keys(CORES).forEach(k => { stats.porEmpresa[k] = 0; }); todosDados.forEach(f => { const emp = getEmpresa(f.properties.prefixo); stats.total++; stats.porEmpresa[emp]++; }); let hFrota = `<div class="stat-row" onclick="resetarFiltros()"><span style="font-weight:700">TOTAL</span><span class="stat-val">${stats.total}</span></div>`; for (const [e, v] of Object.entries(stats.porEmpresa)) if (e !== 'DESCONHECIDO' && v > 0) hFrota += `<div class="stat-row" onclick="toggleFiltroStats('empresa', '${e}')"><span class="stat-badge" style="background:${CORES[e]}">${e}</span><span class="stat-val">${v}</span></div>`; document.getElementById('stats-content').innerHTML = hFrota; }
+        function toggleFiltroStats(type, val) { activeFilter = { type, value: val }; renderizarMapa(); toggleSidebar(); }
+        function resetarFiltros() { activeFilter = { type: null, value: null }; renderizarMapa(); toggleSidebar(); }
         function getEmpresa(p) { const s = String(p || ''); if (s.startsWith('1')) return 'PIRACICABANA'; if (s.startsWith('2')) return 'PIONEIRA'; if (s.startsWith('3')) return 'URBI'; if (s.startsWith('4')) return 'MARECHAL'; if (s.startsWith('5') || s.startsWith('7')) return 'BSBUS'; return 'DESCONHECIDO'; }
-        
-        function parseData(s) { 
-            if(!s) return null; 
-            if(typeof s === 'number') return new Date(s); 
-            const p = s.split(' '); if(p.length<2) return null;
-            const d=p[0].split('-'), h=p[1].split(':'); 
-            return new Date(d[0], d[1]-1, d[2], h[0], h[1], h[2]); 
-        }
-
-        function formatRelativeTimeDetailed(d) {
-            if (!d) return "Desconhecido";
-            const diff = Math.floor((new Date() - d) / 1000);
-            if (diff < 60) return `${diff}s atrás`;
-            const m = Math.floor(diff / 60); return `${m}m atrás`;
-        }
-
+        function parseData(s) { if(!s) return null; return s.includes('-') ? new Date(s.replace(/-/g, '/')) : new Date(s); }
+        function formatRelativeTimeDetailed(d) { if (!d) return "Desconhecido"; const diff = Math.floor((new Date() - d) / 1000); if (diff < 60) return `${diff < 0 ? 0 : diff}s atrás`; const min = Math.floor(diff / 60); return `${min}m atrás`; }
+        function desenharTracado(cd, emp, sApi) { limparTracado(); if (!dadosTracado) return; const cands = dadosTracado.filter(x => String(x.linha) === String(cd)); if (!cands.length) return; let rota = cands.find(c => c.sentido === "CIRCULAR") || cands.find(c => c.sentido === (sApi === '0' ? 'I' : 'V')) || cands[0]; const coords = rota.coordenadas; const cor = CORES[emp] || '#000'; linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.8 }).addTo(map)); linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map)); }
+        function limparTracado() { linhasTracado.forEach(l => map.removeLayer(l)); linhasTracado = []; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
         function toggleSettings() { document.getElementById('settings-modal').classList.toggle('open'); document.getElementById('settings-overlay').classList.toggle('open'); }
-        function toggleFiltersPopup() { document.getElementById('filter-popup').classList.toggle('show'); }
-        function setTheme(m, s=true) { document.documentElement.setAttribute('data-theme', m==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m); if(s) localStorage.setItem('appTheme', m); }
+        function setTheme(m, s=true) { document.documentElement.setAttribute('data-theme', m==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m); appState.theme = m; if(s) localStorage.setItem('appTheme', m); }
         function setIconStyle(st, s=true) { appState.iconStyle = st; if(s){localStorage.setItem('iconStyle', st); renderizarMapa();} }
         function setCustomColor(c) { document.documentElement.style.setProperty('--primary', c); localStorage.setItem('customColor', c); }
         function setRouteBorder(c, s=true) { appState.routeBorder = c; if(s) {localStorage.setItem('routeBorder', c); if(itemSelecionado) desenharTracado(itemSelecionado.cd_linha, getEmpresa(itemSelecionado.prefixo), itemSelecionado.sentido);} }
-        
-        map.on('click', () => { if (itemSelecionado) resetarSelecao(); document.getElementById('filter-popup').classList.remove('show'); closeBottomSheet(); });
-        function toggleLocation() {
-            if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) map.removeLayer(userMarker); }
-            else { map.locate({ setView: true, maxZoom: 15 }); watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); }, null, { enableHighAccuracy: true }); }
-        }
 
+        const searchInput = document.getElementById('search');
+        let highlightedIndex = -1;
+        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); highlightedIndex = -1; document.getElementById('btn-search-clear').classList.toggle('visible', val.length > 0); if (!val) { document.getElementById('suggestions').style.display = 'none'; return; } const matches = Array.from(new Set(todosDados.flatMap(f => [f.properties.cd_linha, f.properties.prefixo]))).filter(x => x && String(x).toLowerCase().includes(val)).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})).slice(0, 50); document.getElementById('suggestions').innerHTML = matches.map((m, i) => `<div class="suggestion-item" data-index="${i}" onclick="selectSuggestion('${m}')">${m}</div>`).join(''); document.getElementById('suggestions').style.display = matches.length ? 'block' : 'none'; });
+        searchInput.addEventListener('keydown', (e) => { const sugBox = document.getElementById('suggestions'); const items = sugBox.getElementsByClassName('suggestion-item'); if (e.key === 'ArrowDown') { e.preventDefault(); highlightedIndex = (highlightedIndex + 1) % items.length; updateHighlight(items); } else if (e.key === 'ArrowUp') { e.preventDefault(); highlightedIndex = (highlightedIndex - 1 + items.length) % items.length; updateHighlight(items); } else if (e.key === 'Enter') { e.preventDefault(); if (highlightedIndex > -1 && items[highlightedIndex]) items[highlightedIndex].click(); else if (items.length > 0) items[0].click(); setTimeout(() => searchInput.focus(), 10); } else if (e.key === 'Escape') { limparBuscaInput(); } });
+        function updateHighlight(items) { Array.from(items).forEach((el, i) => { el.classList.toggle('highlighted', i === highlightedIndex); if (i === highlightedIndex) el.scrollIntoView({ block: 'nearest' }); }); }
+        function selectSuggestion(val) { if (!termosBusca.includes(val)) { termosBusca.push(val); const tag = document.createElement('div'); tag.className = 'tag'; tag.innerHTML = `${val} <span onclick="removerTag(event, '${val}')">✕</span>`; document.getElementById('search-tags').appendChild(tag); } limparBuscaInput(); renderizarMapa(); }
+        function removerTag(e, val) { e.stopPropagation(); termosBusca = termosBusca.filter(t => t !== val); renderizarMapa(); const tags = document.getElementById('search-tags'); Array.from(tags.children).forEach(tag => { if (tag.textContent.includes(val)) tag.remove(); }); }
+        function limparBuscaInput() { searchInput.value = ''; document.getElementById('suggestions').style.display = 'none'; highlightedIndex = -1; document.getElementById('btn-search-clear').classList.remove('visible'); }
+        map.on('click', () => { document.getElementById('filter-popup').classList.remove('show'); if (itemSelecionado) { itemSelecionado = null; modoLinhaUnica = false; limparTracado(); renderizarMapa(); closeBottomSheet(); document.getElementById('btn-recenter').classList.remove('show'); } });
+        function fitBusRoute() { if (!itemSelecionado) return; const mk = markersRegistry[String(itemSelecionado.prefixo)], group = new L.FeatureGroup(); if (mk) group.addLayer(mk); linhasTracado.forEach(l => group.addLayer(l)); map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 15 }); }
+        function toggleLocation() { if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) map.removeLayer(userMarker); } else { watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); map.setView([latitude, longitude], 15); }, null, { enableHighAccuracy: true }); } }
         initApp();
     </script>
 </body>
