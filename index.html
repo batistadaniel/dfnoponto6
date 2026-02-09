@@ -67,7 +67,6 @@
         }
         body.sheet-open .leaflet-bottom.leaflet-right { bottom: calc(var(--bottom-sheet-height) + 235px) !important; }
 
-        /* CORREÇÃO DO BOTÃO DE MAPAS */
         .leaflet-control-layers {
             border-radius: 12px !important;
             box-shadow: var(--shadow) !important;
@@ -78,19 +77,8 @@
             -webkit-backdrop-filter: blur(10px);
             transition: all 0.2s ease;
         }
-        /* Tamanho fixo apenas quando colapsado */
-        .leaflet-control-layers:not(.leaflet-control-layers-expanded) {
-            width: 44px !important;
-            height: 44px !important;
-            overflow: hidden;
-        }
-        /* Estilo da lista quando aberto */
-        .leaflet-control-layers-expanded {
-            padding: 10px !important;
-            width: auto !important;
-            height: auto !important;
-            color: var(--text-main);
-        }
+        .leaflet-control-layers:not(.leaflet-control-layers-expanded) { width: 44px !important; height: 44px !important; overflow: hidden; }
+        .leaflet-control-layers-expanded { padding: 10px !important; width: auto !important; height: auto !important; color: var(--text-main); }
         .leaflet-control-layers-toggle { width: 44px !important; height: 44px !important; background-size: 24px 24px !important; }
 
         .glass-panel {
@@ -127,7 +115,7 @@
         #btn-recenter { background: var(--surface-solid); color: var(--primary); border: 2px solid var(--primary); display: none; }
         #btn-recenter.show { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        /* === BOTTOM SHEET === */
+        /* === BOTTOM SHEET (Aparece só no Mobile) === */
         .bottom-sheet { position: fixed; left: 0; bottom: 0; width: 100%; height: var(--bottom-sheet-height); background: var(--surface-solid); border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); z-index: 1100; transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; padding: 0; touch-action: none; }
         .bottom-sheet.active { transform: translateY(0); }
         .sheet-handle-bar { width: 100%; height: 30px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; cursor: grab; }
@@ -136,6 +124,13 @@
         .sheet-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .sheet-title { font-size: 20px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; flex: 1; }
         .sheet-close { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; background: rgba(128,128,128,0.1); border-radius: 50%; cursor: pointer; font-weight: 600; }
+
+        /* REGRA PARA ESCONDER PAINEL NO DESKTOP */
+        @media (min-width: 768px) {
+            .bottom-sheet { display: none !important; }
+            body.sheet-open .fab-container { bottom: max(30px, env(safe-area-inset-bottom)) !important; }
+            body.sheet-open .leaflet-bottom.leaflet-right { bottom: calc(max(30px, env(safe-area-inset-bottom)) + 215px) !important; }
+        }
 
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .info-card { background: rgba(128,128,128,0.05); padding: 8px 10px; border-radius: 10px; }
@@ -194,6 +189,25 @@
                 z-index: 1000;
             }
         }
+
+        /* === ESTILOS DO POPUP DESKTOP === */
+        .leaflet-popup-content-wrapper {
+            background: var(--surface-solid); color: var(--text-main); border-radius: 14px; padding: 0; 
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); font-family: 'Inter', sans-serif; border: none;
+        }
+        .leaflet-popup-content { margin: 0 !important; width: 220px !important; line-height: 1.3; }
+        .leaflet-container a.leaflet-popup-close-button { top: 6px; right: 6px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.5); font-size: 16px; }
+        .leaflet-popup-tip { background: var(--surface-solid); }
+        
+        .popup-header { 
+            padding: 8px; 
+            font-weight: 800; text-align: center; border-radius: 14px 14px 0 0; 
+            font-size: 14px; color: #000; background: rgba(128,128,128,0.1); border-top: 4px solid transparent; 
+        }
+        .popup-body { padding: 8px 12px; font-size: 12px; }
+        .popup-row { display: flex; justify-content: space-between; margin-bottom: 3px; align-items: flex-start; }
+        .popup-label { color: var(--text-sec); font-weight: 500; }
+        .popup-val { font-weight: 700; color: var(--text-main); text-align: right; }
 
         .user-location-marker { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3); }
         @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -328,8 +342,24 @@
             setRouteBorder(appState.routeBorder, false);
             carregarTracado();
             atualizarDados();
-            setInterval(atualizarDados, 15000);
-            setInterval(() => { if (itemSelecionado) { const statusEl = document.getElementById('sheet-val-status'); if (statusEl) { const d = parseData(itemSelecionado.datalocal); statusEl.innerHTML = formatRelativeTimeDetailed(d); } } }, 1000);
+            setInterval(atualizarDados, 5000);
+            
+            // ATUALIZAÇÃO DO CONTADOR EM TEMPO REAL (1 SEGUNDO)
+            setInterval(() => {
+                if (itemSelecionado) {
+                    const d = parseData(itemSelecionado.datalocal);
+                    const txt = formatTicker(d);
+                    
+                    // Atualiza Painel Mobile
+                    const sheetStatus = document.getElementById('sheet-val-status');
+                    if (sheetStatus) sheetStatus.innerText = txt;
+
+                    // Atualiza Popup Desktop (se existir)
+                    const popupStatus = document.getElementById('popup-status-display');
+                    if (popupStatus) popupStatus.innerText = txt;
+                }
+            }, 1000);
+
             initSwipe();
         }
 
@@ -340,7 +370,13 @@
                 const req = await fetch(BASE_API_URL);
                 const json = await req.json();
                 todosDados = json.map(v => ({ properties: { prefixo: v.prefixo, cd_linha: v.linha || "", latitude: v.latitude, longitude: v.longitude, velocidade: v.velocidade || 0, datalocal: v.data_local, sentido: v.sentido } }));
-                if (itemSelecionado) { const match = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo)); if (match) { itemSelecionado = match.properties; atualizarInterfacePainel(); } }
+                if (itemSelecionado) { 
+                    const match = todosDados.find(f => String(f.properties.prefixo) === String(itemSelecionado.prefixo)); 
+                    if (match) { 
+                        itemSelecionado = match.properties; 
+                        atualizarInterfacePainel(); 
+                    } 
+                }
                 if (amostragemIds.size === 0) gerarAmostragemInicial();
                 renderizarMapa(); 
                 atualizarEstatisticas();
@@ -406,9 +442,43 @@
                     mk.setLatLng([p.latitude, p.longitude]);
                     const el = mk.getElement();
                     if (el) el.innerHTML = htmlIcon; 
+                    
+                    // AQUI ESTÁ A CORREÇÃO:
+                    // Se o popup estiver aberto E for o ônibus selecionado, atualiza o conteúdo
+                    // Isso garante que o campo "Atualizado" mude quando chegar nova info do GPS
+                    if (mk.isPopupOpen() && isSelected) {
+                        mk.setPopupContent(criarConteudoPopup(p, empresa));
+                    }
                 } else {
                     const marker = L.marker([p.latitude, p.longitude], { icon: L.divIcon({ className: 'bus-marker-container', html: htmlIcon, iconSize: [0, 0] }) });
-                    marker.on('click', (e) => { L.DomEvent.stopPropagation(e); handleBusClick(p, empresa, marker); });
+                    
+                    marker.bindPopup(criarConteudoPopup(p, empresa));
+
+                    // === LÓGICA DE HOVER / CLIQUE / TRAVAMENTO ===
+                    marker.on('mouseover', function (e) {
+                        // Só abre no hover se NENHUM item estiver selecionado (travado)
+                        // OU se o item que estamos passando o mouse É o selecionado
+                        if (!itemSelecionado) {
+                            this.openPopup();
+                        }
+                    });
+                    
+                    marker.on('mouseout', function (e) {
+                        // Só fecha se este marcador NÃO for o selecionado
+                        if (!itemSelecionado || String(itemSelecionado.prefixo) !== String(p.prefixo)) {
+                            this.closePopup();
+                        }
+                    });
+
+                    marker.on('click', (e) => { 
+                        L.DomEvent.stopPropagation(e); 
+                        handleBusClick(p, empresa, marker); 
+                        // Força a abertura (travamento) no desktop
+                        if (window.innerWidth >= 768) {
+                            marker.openPopup();
+                        }
+                    });
+                    
                     busLayer.addLayer(marker);
                     markersRegistry[id] = marker;
                 }
@@ -416,10 +486,67 @@
             for (let id in markersRegistry) if (!validIds.has(id)) { busLayer.removeLayer(markersRegistry[id]); delete markersRegistry[id]; }
         }
 
+        // --- FUNÇÃO PARA GERAR O CONTEÚDO DO POPUP ---
+        function criarConteudoPopup(p, empresa) {
+            const d = parseData(p.datalocal);
+            const timeStr = d ? d.toTimeString().split(' ')[0] : '--:--';
+            const cor = CORES[empresa] || '#888';
+            const sentidoTexto = p.sentido == '1' ? 'Volta' : 'Ida';
+
+            // Adicionei ID no span de status para atualização via JS
+            return `
+            <div class="popup-header" style="border-top: 5px solid ${cor};">
+                ${p.cd_linha ? 'Linha ' + p.cd_linha : 'Sem Linha'}
+            </div>
+            <div class="popup-body">
+                <div class="popup-row"><span class="popup-label">Prefixo</span><span class="popup-val">${p.prefixo}</span></div>
+                <div class="popup-row"><span class="popup-label">Empresa</span><span class="popup-val" style="color:${cor}">${empresa}</span></div>
+                <div class="popup-row"><span class="popup-label">Sentido</span><span class="popup-val">${sentidoTexto}</span></div>
+                <div class="popup-row"><span class="popup-label">Velocidade</span><span class="popup-val">${parseInt(p.velocidade)} km/h</span></div>
+                <div class="popup-row"><span class="popup-label">Atualizado</span><span class="popup-val">${timeStr}</span></div>
+                <hr style="margin:5px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div class="popup-row"><span class="popup-label">Status</span><span class="popup-val" id="popup-status-display">${formatTicker(d)}</span></div>
+            </div>`;
+        }
+
         function toggleFiltersPopup(e) { if (e) L.DomEvent.stopPropagation(e); document.getElementById('filter-popup').classList.toggle('show'); }
         function toggleTodosFiltros(checked) { document.querySelectorAll('.chk-empresa').forEach(cb => cb.checked = checked); renderizarMapa(); }
-        function handleBusClick(p, empresa, marker) { itemSelecionado = p; if (p.cd_linha) desenharTracado(p.cd_linha, empresa, p.sentido); else limparTracado(); if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; renderizarMapa(); openBottomSheet(p, empresa); document.getElementById('btn-recenter').classList.add('show'); fitBusRoute(); }
-        function openBottomSheet(p, empresa) { const sheet = document.getElementById('bottom-sheet'); sheet.style.transform = ''; sheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'; atualizarInterfacePainel(); sheet.classList.add('active'); document.body.classList.add('sheet-open'); }
+        
+        function handleBusClick(p, empresa, marker) { 
+            // Verifica se mudou de linha para decidir se ajusta o zoom
+            const linhaAnterior = itemSelecionado ? itemSelecionado.cd_linha : null;
+            const novaLinha = p.cd_linha;
+
+            itemSelecionado = p; 
+            
+            if (p.cd_linha) desenharTracado(p.cd_linha, empresa, p.sentido); 
+            else limparTracado(); 
+            
+            if (!activeFilter.type && termosBusca.length === 0) modoLinhaUnica = true; 
+            
+            renderizarMapa(); 
+            
+            // Abre painel (apenas mobile)
+            openBottomSheet(p, empresa); 
+            
+            document.getElementById('btn-recenter').classList.add('show'); 
+            
+            // ZOOM INTELIGENTE: Só foca se a linha mudou ou se não tinha linha antes
+            if (linhaAnterior !== novaLinha) {
+                fitBusRoute(); 
+            }
+        }
+
+        function openBottomSheet(p, empresa) { 
+            if (window.innerWidth >= 768) return; // TRAVA PAINEL NO DESKTOP
+
+            const sheet = document.getElementById('bottom-sheet'); 
+            sheet.style.transform = ''; 
+            sheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'; 
+            atualizarInterfacePainel(); 
+            sheet.classList.add('active'); 
+            document.body.classList.add('sheet-open'); 
+        }
 
         function atualizarInterfacePainel() {
             if (!itemSelecionado) return;
@@ -444,7 +571,7 @@
                     <div class="info-card"><div class="info-label">SENTIDO</div><div class="info-value">${p.sentido == '1' ? 'Volta' : 'Ida'}</div></div>
                     <div class="info-card"><div class="info-label">VELOCIDADE</div><div class="info-value">${parseInt(p.velocidade)} km/h</div></div>
                     <div class="info-card"><div class="info-label">ATUALIZADO</div><div class="info-value">${d ? d.toTimeString().split(' ')[0] : '--'}</div></div>
-                    <div class="info-card"><div class="info-label">STATUS</div><div class="info-value" id="sheet-val-status">${formatRelativeTimeDetailed(d)}</div></div>
+                    <div class="info-card"><div class="info-label">STATUS</div><div class="info-value" id="sheet-val-status">${formatTicker(d)}</div></div>
                 </div>`;
         }
 
@@ -455,7 +582,26 @@
         function resetarFiltros() { activeFilter = { type: null, value: null }; renderizarMapa(); toggleSidebar(); }
         function getEmpresa(p) { const s = String(p || ''); if (s.startsWith('1')) return 'PIRACICABANA'; if (s.startsWith('2')) return 'PIONEIRA'; if (s.startsWith('3')) return 'URBI'; if (s.startsWith('4')) return 'MARECHAL'; if (s.startsWith('5') || s.startsWith('7')) return 'BSBUS'; return 'DESCONHECIDO'; }
         function parseData(s) { if(!s) return null; return s.includes('-') ? new Date(s.replace(/-/g, '/')) : new Date(s); }
-        function formatRelativeTimeDetailed(d) { if (!d) return "Desconhecido"; const diff = Math.floor((new Date() - d) / 1000); if (diff < 60) return `${diff < 0 ? 0 : diff}s atrás`; const min = Math.floor(diff / 60); return `${min}m atrás`; }
+        
+        // --- FUNÇÃO DE TICKER PROGRESSIVO (Segundos -> Minutos -> Horas -> Dias) ---
+        function formatTicker(d) {
+            if (!d) return "Desconhecido";
+            const diff = Math.floor((new Date() - d) / 1000);
+            
+            if (diff < 60) return `${diff < 0 ? 0 : diff}s atrás`;
+            
+            const min = Math.floor(diff / 60);
+            const sec = diff % 60;
+            if (diff < 3600) return `${min}m ${sec < 10 ? '0'+sec : sec}s atrás`;
+            
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            if (diff < 86400) return `${h}h ${m < 10 ? '0'+m : m}m atrás`;
+            
+            const dias = Math.floor(diff / 86400);
+            return `${dias} ${dias === 1 ? 'dia' : 'dias'} atrás`;
+        }
+
         function desenharTracado(cd, emp, sApi) { limparTracado(); if (!dadosTracado) return; const cands = dadosTracado.filter(x => String(x.linha) === String(cd)); if (!cands.length) return; let rota = cands.find(c => c.sentido === "CIRCULAR") || cands.find(c => c.sentido === (sApi === '0' ? 'I' : 'V')) || cands[0]; const coords = rota.coordenadas; const cor = CORES[emp] || '#000'; linhasTracado.push(L.polyline(coords, { color: appState.routeBorder, weight: 6, opacity: 0.8 }).addTo(map)); linhasTracado.push(L.polyline(coords, { color: cor, weight: 3, opacity: 1 }).addTo(map)); }
         function limparTracado() { linhasTracado.forEach(l => map.removeLayer(l)); linhasTracado = []; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
@@ -473,10 +619,21 @@
         function selectSuggestion(val) { if (!termosBusca.includes(val)) { termosBusca.push(val); const tag = document.createElement('div'); tag.className = 'tag'; tag.innerHTML = `${val} <span onclick="removerTag(event, '${val}')">✕</span>`; document.getElementById('search-tags').appendChild(tag); } limparBuscaInput(); renderizarMapa(); }
         function removerTag(e, val) { e.stopPropagation(); termosBusca = termosBusca.filter(t => t !== val); renderizarMapa(); const tags = document.getElementById('search-tags'); Array.from(tags.children).forEach(tag => { if (tag.textContent.includes(val)) tag.remove(); }); }
         function limparBuscaInput() { searchInput.value = ''; document.getElementById('suggestions').style.display = 'none'; highlightedIndex = -1; document.getElementById('btn-search-clear').classList.remove('visible'); }
-        map.on('click', () => { document.getElementById('filter-popup').classList.remove('show'); if (itemSelecionado) { itemSelecionado = null; modoLinhaUnica = false; limparTracado(); renderizarMapa(); closeBottomSheet(); document.getElementById('btn-recenter').classList.remove('show'); } });
+        map.on('click', () => { 
+            document.getElementById('filter-popup').classList.remove('show'); 
+            // Se clicar no mapa (fora), limpa a seleção
+            if (itemSelecionado) { 
+                itemSelecionado = null; 
+                modoLinhaUnica = false; 
+                limparTracado(); 
+                renderizarMapa(); 
+                closeBottomSheet(); 
+                document.getElementById('btn-recenter').classList.remove('show'); 
+            } 
+        });
         function fitBusRoute() { if (!itemSelecionado) return; const mk = markersRegistry[String(itemSelecionado.prefixo)], group = new L.FeatureGroup(); if (mk) group.addLayer(mk); linhasTracado.forEach(l => group.addLayer(l)); map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 15 }); }
         function toggleLocation() { if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; if (userMarker) map.removeLayer(userMarker); } else { watchId = navigator.geolocation.watchPosition(pos => { const { latitude, longitude } = pos.coords; if (!userMarker) userMarker = L.marker([latitude, longitude], { icon: L.divIcon({ className: 'user-location-marker', iconSize: [16, 16] }) }).addTo(map); else userMarker.setLatLng([latitude, longitude]); map.setView([latitude, longitude], 15); }, null, { enableHighAccuracy: true }); } }
         initApp();
     </script>
 </body>
-</html>
+    </html>
